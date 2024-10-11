@@ -1,0 +1,95 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "hpv_progression_model"
+description = "A stochastic model of the natural history and effects of vaccination and screening in the progression of Human Papillomavirus infections and cervical precancer lesions and invasive cancers."
+authors = [{name = "Bernardo Chrispim Baron", email = "bernardo@impulsogov.org"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = []
+dynamic = ["version"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+dependencies = [
+    "marimo>=0.8.19",
+    "PyYAML>=6.0.2",
+    "numpy>=2.1.1",
+    "prettytable>=3.11.0",
+    "scipy>=1.14.1",
+]
+
+[project.urls]
+Homepage = "https://ImpulsoGov.github.io/hpv-progression-model"
+Documentation = "https://ImpulsoGov.github.io/hpv-progression-model"
+Changelog = "https://ImpulsoGov.github.io/hpv-progression-model/changelog"
+Repository = "https://github.com/ImpulsoGov/hpv-progression-model"
+Issues = "https://github.com/ImpulsoGov/hpv-progression-model/issues"
+Discussions = "https://github.com/ImpulsoGov/hpv-progression-model/discussions"
+
+[project.scripts]
+hpv-model = "hpv_progression_model.cli:main"
+
+[tool.pdm]
+version = {source = "scm"}
+plugins = [
+    "pdm-multirun",
+]
+
+[tool.pdm.build]
+package-dir = "src"
+editable-backend = "editables"
+
+[tool.pdm.dev-dependencies]
+duty = ["duty>=0.10"]
+ci-quality = ["hpv_progression_model[duty,docs,quality,typing,security]"]
+ci-tests = ["hpv_progression_model[duty,tests]"]
+docs = [
+    "black>=23.9",
+    "markdown-callouts>=0.3",
+    "markdown-exec>=1.7",
+    "mkdocs>=1.5",
+    "mkdocs-coverage>=1.0",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-git-committers-plugin-2>=1.2",
+    "mkdocs-literate-nav>=0.6",
+    "mkdocs-material>=9.4",
+    "mkdocs-minify-plugin>=0.7",
+    "mkdocstrings[python]>=0.23",
+    "tomli>=2.0; python_version < '3.11'",
+]
+maintain = [
+    "black>=23.9",
+    "blacken-docs>=1.16",
+    "git-changelog>=2.3",
+]
+quality = [
+    "ruff>=0.0",
+]
+tests = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-randomly>=3.15",
+    "pytest-xdist>=3.3",
+]
+typing = [
+    "mypy>=1.5",
+    "types-markdown>=3.5",
+    "types-pyyaml>=6.0",
+]
+security = [
+    "safety>=2.3",
+]

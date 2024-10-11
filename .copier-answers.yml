@@ -1,0 +1,22 @@
+# Changes here will be overwritten by Copier
+_commit: 1.2.6
+_src_path: gh:pawamoy/copier-pdm
+author_email: bernardo@impulsogov.org
+author_fullname: Bernardo Chrispim Baron
+author_username: bcbernardo
+copyright_date: '2024'
+copyright_holder: ImpulsoGov
+copyright_holder_email: contato@impulsogov.org
+copyright_license: MIT License
+insiders: false
+project_description: A stochastic model of the natural history and effects of vaccination
+    and screening in the progression of Human Papillomavirus infections and cervical
+    precancer lesions and invasive cancers.
+project_name: HPV Progression Model
+python_package_command_line_name: hpv-model
+python_package_distribution_name: hpv_progression_model
+python_package_import_name: hpv_progression_model
+repository_name: hpv-progression-model
+repository_namespace: ImpulsoGov
+repository_provider: github.com
+

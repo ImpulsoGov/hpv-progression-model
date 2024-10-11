@@ -1,0 +1,19 @@
+# HPV Prevalences in the Brazilian Population
+
+# Source: Wendland, E. M., Villa, L. L., Unger, E. R., Domingues, C. M., & Benzaken, A. S. (2020). Prevalence of HPV infection among sexually active adolescents and young adults in Brazil: The POP-Brazil Study. Scientific Reports, 10(1), 1-10. https://doi.org/10.1038/s41598-020-61582-
+
+# Source: Bruni, L., Diaz, M., Castellsagué, M., Ferrer, E., Bosch, F. X., & De Sanjosé, S. (2010). Cervical Human Papillomavirus Prevalence in 5 Continents: Meta-Analysis of 1 Million Women with Normal Cytological Findings. The Journal of Infectious Diseases, 202(12), 1789-1799. https://doi.org/10.1086/657321
+
+# Data drawn primarily from the POP-Brazil Study, representative of a large convience sample from Brazilian capitals. See: Wendland et al. (2020), "Results" section and Figure 2 (available from: <https://doi.org/10.1038/s41598-020-61582-2>).
+
+# Some of the values are not explicitely given in the paper. We are trying to contact the authors to get the correct values. Meanwhile, we use older data for Latin America and Caribbean from Bruni et al.(2020)'s meta-analyses, Figure 3 (available from: <https://academic.oup.com/view-large/figure/90104059/202-12-1789-fig003.jpeg>) for missing genotypes. 
+
+HPV_16: 0.089  # Wendland et al. (2020), Brazil
+HPV_18: 0.012  # Bruni et al. (2010), LAC
+HPV_31: 0.048  # Wendland et al. (2020), Brazil
+HPV_33: 0.008  # Bruni et al. (2010), LAC
+HPV_48: 0.007  # Bruni et al. (2010), LAC
+HPV_52: 0.088  # Wendland et al. (2020), Brazil
+HPV_58: 0.001  # Bruni et al. (2010), LAC
+OTHER_HR: 0.028  # Bruni et al. (2010), LAC # HPVs 35 + 39 + 51 + 59 + 66 + 68
+OTHER_LR: 0.016  # Bruni et al. (2010), LAC # HPVs 6 + 11

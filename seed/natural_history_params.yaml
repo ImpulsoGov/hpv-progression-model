@@ -1,0 +1,521 @@
+# HPV/Cervical Cancer Natural History Model Parameters
+
+# Source: Kim J. J., Burger E. A., Regan C. & Sy S. (2017). Screening for cervical cancer in primary care: a decision analysis for the US Preventive Services Task Force. JAMA. https://doi.org/10.1001/jama.2017.19872
+
+# The parameters below were extracted from the monthly probabilities in Kim et al. (2017), eTable 1, available from the paper's supplementary material. We changed the table keys to be expressed in months since the start of the source state (e.g., "Year 1" transition probabilities are expressed as month "0" probabilities). Probabilities are assumed to remain constant until the next time milestone; from the last time milestone onwards, the probabilities are assumed to remain constant.
+
+# We use the following convention for the states:
+#   "INFECTED": The individual is infected with HPV.
+#   "HEALTHY": The individual is healthy.
+#   "CIN2": The individual has CIN 2 lesions.
+#   "CIN3": The individual has CIN 3 lesions.
+#   "LOCAL_UNDETECTED": The individual has undetected invasive cancer in the local stage.
+#   "LOCAL_DETECTED": The individual has invasive cancer in the local stage.
+#   "REGIONAL_UNDETECTED": The individual has undetected invasive cancer in the regional stage.
+#   "REGIONAL_DETECTED": The individual has invasive cancer in the regional stage.
+#   "DISTANT_UNDETECTED": The individual has undetected invasive cancer in the distant stage.
+#   "DISTANT_DETECTED": The individual has invasive cancer in the distant stage.
+#   "DECEASED": The individual has passed away.
+
+# Transitions between states are noted in the "SOURCE_STATE,DESTINATION_STATE" format, where the source state is the first element and the destination state is the second element. For example, "INFECTED,HEALTHY" indicates that the clearance rate i.e., the probability of transitioning from the "INFECTED" state to the "HEALTHY" state in a given month, based on how many months have passed since the infection was acquired.
+
+# Note we do not use Kim et al. (2017)'s incidence rates and invasive cancer mortality rates, as both are considered locally specific and inferred from other data in the `/seed` directory.
+
+HPV_16:
+
+  # Transition from infected state to healthy state (clearance)
+  "INFECTED,HEALTHY":
+    0: 0.04189
+    12: 0.04075
+    24: 0.0339
+    36: 0.03189
+    48: 0.01985
+
+  # Transition from infected state to CIN2 (progression to CIN2)
+  "INFECTED,CIN2":
+    0: 0.00171
+    12: 0.00242
+    24: 0.00258
+    36: 0.00552
+    48: 0.015
+    60: "0.0152,0.04489"
+    120: "0.01950,0.07437"
+
+  # Transition from infected state to CIN3 (progression to CIN3)
+  "INFECTED,CIN3":
+    0: 0.00057
+    12: 0.00081
+    24: 0.00086
+    36: 0.00184
+    48: 0.00502
+    60: "0.00509,0.01504"
+    120: "0.00653,0.02491"
+
+  # Progression from CIN2 to invasive cancer (local undetected)
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00003,0.00004"
+    60: "0.00004,0.00005"
+    120: "0.00086,0.00111"
+    240: "0.00251,0.00325"
+    360: "0.00502,0.00650"
+    420: "0.00544,0.00704"
+    480: "0.01171,0.01516"
+
+  # Progression from CIN3 to invasive cancer (local undetected)
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00017,0.00021"
+    60: "0.00018,0.00023"
+    120: "0.00430,0.00556"
+    240: "0.01259,0.01625"
+    360: "0.02518,0.03251"
+    420: "0.02728,0.03522"
+    480: "0.05875,0.07585"
+
+HPV_18:
+
+  "INFECTED,HEALTHY":
+    0: 0.07334
+    12: 0.06324
+    24: 0.05360
+    36: 0.02062
+    48: 0.02062
+
+  "INFECTED,CIN2":
+    0: 0.00004
+    12: 0.00019
+    24: 0.00019
+    36: 0.00773
+    48: 0.00773
+    60: "0.00784,0.02314"
+    120: "0.01005,0.03835"
+
+  "INFECTED,CIN3":
+    0: 0.00001
+    12: 0.00005
+    24: 0.00005
+    36: 0.00194
+    48: 0.00194
+    60: "0.00196,0.00580"
+    120: "0.00252,0.00961"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00003,0.00004"
+    60: "0.00004,0.00005"
+    120: "0.00086,0.00110"
+    240: "0.00252,0.00323"
+    360: "0.00504,0.00646"
+    420: "0.00546,0.00700"
+    480: "0.01177,0.01508"
+    540: "0.01261,0.01615"
+    600: "0.07547,0.09671"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00017,0.00021"
+    60: "0.00018,0.00023"
+    120: "0.00431,0.00556"
+    240: "0.01259,0.01626"
+    360: "0.02519,0.03253"
+    420: "0.02729,0.03524"
+    480: "0.05877,0.07590"
+    540: "0.06297,0.08132"
+    600: "0.07539,0.09737"
+
+HPV_31:
+
+  "INFECTED,HEALTHY":
+    0: 0.06345
+    12: 0.03383
+    24: 0.03383
+    36: 0.03383
+
+  "INFECTED,CIN2":
+    0: 0.00026
+    12: 0.00278
+    24: 0.00309
+    36: 0.00693
+    48: 0.00693
+    60: "0.00702,0.02074"
+    120: "0.00901,0.03437"
+
+  "INFECTED,CIN3":
+    0: 0.00007
+    12: 0.00070
+    24: 0.00077
+    36: 0.00174
+    48: 0.00174
+    60: "0.00176,0.00520"
+    120: "0.00226,0.00861"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00002,0.00002"
+    60: "0.00002,0.00002"
+    120: "0.00057,0.00057"
+    240: "0.00167,0.00167"
+    360: "0.00334,0.00334"
+    420: "0.00362,0.00362"
+    480: "0.00780,0.00780"
+    540: "0.00835,0.00835"
+    600: "0.05000,0.05000"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00011,0.00011"
+    60: "0.00012,0.00012"
+    120: "0.00286,0.00286"
+    240: "0.00835,0.00835"
+    360: "0.01670,0.01670"
+    420: "0.01810,0.01810"
+    480: "0.03898,0.03898"
+    540: "0.04176,0.04176"
+    600: "0.05000,0.05000"
+
+HPV_33:
+
+  "INFECTED,HEALTHY":
+    0: 0.08345
+    12: 0.04496
+    24: 0.03616
+    36: 0.03616
+
+  "INFECTED,CIN2":
+    0: 0.00072
+    12: 0.00072
+    24: 0.00494
+    36: 0.00494
+    48: 0.00494
+    60: "0.00500,0.01478"
+    120: "0.00642,0.02449"
+
+  "INFECTED,CIN3":
+    0: 0.00018
+    12: 0.00018
+    24: 0.00124
+    36: 0.00124
+    48: 0.00124
+    60: "0.00125,0.00370"
+    120: "0.00161,0.00613"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00003,0.00004"
+    60: "0.00004,0.00005"
+    120: "0.00087,0.00111"
+    240: "0.00254,0.00324"
+    360: "0.00509,0.00648"
+    420: "0.00551,0.00702"
+    480: "0.01187,0.01511"
+    540: "0.01272,0.01619"
+    600: "0.07613,0.09693"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00016,0.00021"
+    60: "0.00018,0.00023"
+    120: "0.00429,0.00553"
+    240: "0.01254,0.01618"
+    360: "0.02507,0.03237"
+    420: "0.02716,0.03506"
+    480: "0.05850,0.07552"
+    540: "0.06268,0.08092"
+    600: "0.07505,0.09688"
+
+HPV_48:
+
+  "INFECTED,HEALTHY":
+    0: 0.06557
+    12: 0.05443
+    24: 0.05397
+    36: 0.03332
+    48: 0.01666
+
+  "INFECTED,CIN2":
+    0: 0.00059
+    12: 0.00247
+    24: 0.00247
+    36: 0.00462
+    48: 0.01025
+    60: "0.01038,0.03066"
+    120: "0.01332,0.05080"
+
+  "INFECTED,CIN3":
+    0: 0.00015
+    12: 0.00062
+    24: 0.00062
+    36: 0.00116
+    48: 0.00257
+    60: "0.00261,0.00770"
+    120: "0.00334,0.01275"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00002,0.00002"
+    60: "0.00002,0.00002"
+    120: "0.00057,0.00057"
+    240: "0.00167,0.00167"
+    360: "0.00334,0.00334"
+    420: "0.00362,0.00362"
+    480: "0.00780,0.00780"
+    540: "0.00835,0.00835"
+    600: "0.05000,0.05000"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00011,0.00011"
+    60: "0.00012,0.00012"
+    120: "0.00286,0.00286"
+    240: "0.00835,0.00835"
+    360: "0.01670,0.01670"
+    420: "0.01810,0.01810"
+    480: "0.03898,0.03898"
+    540: "0.04176,0.04176"
+    600: "0.05000,0.05000"
+
+HPV_52:
+
+  "INFECTED,HEALTHY":
+    0: 0.06300
+    12: 0.04440
+    24: 0.04440
+    36: 0.03933
+
+  "INFECTED,CIN2":
+    0: 0.00088
+    12: 0.00168
+    24: 0.00168
+    36: 0.00198
+    48: 0.00568
+    60: "0.00575,0.01699"
+    120: "0.00738,0.02816"
+
+  "INFECTED,CIN3":
+    0: 0.00022
+    12: 0.00042
+    24: 0.00042
+    36: 0.00049
+    48: 0.00142
+    60: "0.00144,0.00426"
+    120: "0.00185,0.00705"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00002,0.00002"
+    60: "0.00002,0.00002"
+    120: "0.00057,0.00057"
+    240: "0.00167,0.00167"
+    360: "0.00334,0.00334"
+    420: "0.00362,0.00362"
+    480: "0.00780,0.00780"
+    540: "0.00835,0.00835"
+    600: "0.05000,0.05000"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00011,0.00011"
+    60: "0.00012,0.00012"
+    120: "0.00286,0.00286"
+    240: "0.00835,0.00835"
+    360: "0.01670,0.01670"
+    420: "0.01810,0.01810"
+    480: "0.03898,0.03898"
+    540: "0.04176,0.04176"
+    600: "0.05000,0.05000"
+
+HPV_58:
+
+  "INFECTED,HEALTHY":
+    0: 0.06557
+    12: 0.05443
+    24: 0.05397
+    36: 0.03332
+    48: 0.01666
+
+  "INFECTED,CIN2":
+    0: 0.00059
+    12: 0.00247
+    24: 0.00247
+    36: 0.00462
+    48: 0.01025
+    60: "0.01038,0.03066"
+    120: "0.01332,0.05080"
+
+  "INFECTED,CIN3":
+    0: 0.00015
+    12: 0.00062
+    24: 0.00062
+    36: 0.00116
+    48: 0.00257
+    60: "0.00261,0.00770"
+    120: "0.00334,0.01275"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00002,0.00002"
+    60: "0.00002,0.00002"
+    120: "0.00057,0.00057"
+    240: "0.00167,0.00167"
+    360: "0.00334,0.00334"
+    420: "0.00362,0.00362"
+    480: "0.00780,0.00780"
+    540: "0.00835,0.00835"
+    600: "0.05000,0.05000"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00011,0.00011"
+    60: "0.00012,0.00012"
+    120: "0.00286,0.00286"
+    240: "0.00835,0.00835"
+    360: "0.01670,0.01670"
+    420: "0.01810,0.01810"
+    480: "0.03898,0.03898"
+    540: "0.04176,0.04176"
+    600: "0.05000,0.05000"
+
+OTHER_HR:
+
+  "INFECTED,HEALTHY":
+    0: 0.08077
+    12: 0.06663
+    24: 0.05397
+    36: 0.04923
+    48: 0.00509
+
+  "INFECTED,CIN2":
+    0: 0.00013
+    12: 0.00037
+    24: 0.00196
+    36: 0.00196
+    48: 0.00196
+    60: "0.00199,0.00587"
+    120: "0.00255,0.00972"
+
+  "INFECTED,CIN3":
+    0: 0.00003
+    12: 0.00009
+    24: 0.00049
+    36: 0.00049
+    48: 0.00049
+    60: "0.00050,0.00147"
+    120: "0.00064,0.00243"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00001,0.00002"
+    60: "0.00001,0.00002"
+    120: "0.00029,0.00056"
+    240: "0.00084,0.00165"
+    360: "0.00168,0.00330"
+    420: "0.00182,0.00358"
+    480: "0.00392,0.00770"
+    540: "0.00420,0.00825"
+    600: "0.00420,0.00825"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00011,0.00021"
+    60: "0.00012,0.00023"
+    120: "0.00286,0.00556"
+    240: "0.00835,0.01626"
+    360: "0.01670,0.03251"
+    420: "0.01810,0.03522"
+    480: "0.03898,0.07585"
+    540: "0.04176,0.08127"
+    600: "0.05000,0.09724"
+
+OTHER_LR:
+
+  "INFECTED,HEALTHY":
+    0: 0.05189
+    12: 0.05001
+    24: 0.03465
+    36: 0.03465
+
+  "INFECTED,CIN2":
+    0: 0.00021
+    12: 0.00029
+    24: 0.00031
+    36: 0.00066
+    48: 0.00066
+    60: "0.00067,0.00199"
+    120: "0.00086,0.00329"
+
+  "INFECTED,CIN3":
+    0: 0.00002
+    12: 0.00003
+    24: 0.00003
+    36: 0.00007
+    48: 0.00007
+    60: "0.00007,0.00022"
+    120: "0.00010,0.00037"
+
+  "CIN2,LOCAL_UNDETECTED":
+    0: "0.00001,0.00002"
+    60: "0.00001,0.00002"
+    120: "0.00029,0.00056"
+    240: "0.00084,0.00165"
+    360: "0.00168,0.00330"
+    420: "0.00182,0.00358"
+    480: "0.00392,0.00770"
+    540: "0.00420,0.00825"
+    600: "0.00420,0.00825"
+
+  "CIN3,LOCAL_UNDETECTED":
+    0: "0.00011,0.00021"
+    60: "0.00012,0.00023"
+    120: "0.00286,0.00556"
+    240: "0.00835,0.01626"
+    360: "0.01670,0.03251"
+    420: "0.01810,0.03522"
+    480: "0.03898,0.07585"
+    540: "0.04176,0.08127"
+    600: "0.05000,0.09724"
+
+
+# Monthly transition rates that do not depend on the HPV genotype
+
+ALL_TYPES:
+
+  # Probability of symptom detection
+
+  "LOCAL_UNDETECTED,LOCAL_DETECTED":
+    0: 0.01740
+
+  "REGIONAL_UNDETECTED,REGIONAL_DETECTED":
+    0: 0.07350
+
+  "DISTANT_UNDETECTED,DISTANT_DETECTED":
+    0: 0.17460
+
+  # Natural stage progression for undetected invasive cancers
+
+  "LOCAL_UNDETECTED,REGIONAL_UNDETECTED":
+    0: 0.02000
+
+  "REGIONAL_UNDETECTED,DISTANT_UNDETECTED":
+    0: 0.02500
+
+  # ######################################################################### #
+  # NOTE: The following transitions do not come from Kim et al. (2017)        #
+  # ######################################################################### #
+
+  # Undetected cancer mortalities
+  # We take the steepest year of mortality from Carmo & Luiz (2011) and assume
+  # this is the constant mortality for undetected cancers. In fact, we do not
+  # know the true mortality rates for undetected cancers, but this approach at
+  # least ensures that detecting a cancer will always be as good as or better
+  # than not detecting it.
+  "LOCAL_UNDETECTED,DECEASED":
+    0: 0.0042
+  
+  "REGIONAL_UNDETECTED,DECEASED":
+    0: 0.0287
+  
+  "DISTANT_UNDETECTED,DECEASED":
+    0: 0.0821
+
+  # Detected cancer cure
+  # We assume all cancers get cured exactly at the 60th month after detection.
+  # This a very rough approximation.
+  "LOCAL_DETECTED,HEALTHY":
+    0: 0.0
+    60: 1.0
+    61: 0.0
+
+  "REGIONAL_DETECTED,HEALTHY":
+    0: 0.0
+    60: 1.0
+    61: 0.0
+
+  "DISTANT_DETECTED,HEALTHY":
+    0: 0.0
+    60: 1.0
+    61: 0.0

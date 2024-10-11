@@ -1,0 +1,125 @@
+#path: https://vizhub.healthdata.org/gbd-results?params=gbd-api-2021-permalink/692406cbeb7cf868b1a3922f125dbfdf
+#title: Global Burden of Disease Study 2021 (GBD 2021) Cervical Cancer and All-Cause Mortality Estimates for Brazil
+#description: Mortality rates for cervical cancer and all-cause mortality for Brazilian women, grouped in 5-year age groups.
+#format: csv
+#mediatype: text/csv
+#encoding: utf-8
+#schema:
+#  fields:
+#  - name: measure_id
+#    type: string
+#    description: Measure identifier.
+#  - name: measure_name
+#    type: string
+#    description: Name of the measure, i.e., the indicator for which estimates are produced.
+#  - name: location_id
+#    type: string
+#    description: Location identifier.
+#  - name: location_name
+#    type: string
+#    description: Location name.
+#    type: string
+#  - name: sex_id
+#    type: string
+#    description: Sex identifier.
+#  - name: sex_name
+#    type: string
+#    description: Sex name.
+#  - name: age_id
+#    type: string
+#    description: Age range identifier.
+#  - name: age_name
+#    type: string
+#    description: Age range in human readable format.
+#  - name: cause_id
+#    type: string
+#    description: Cause of death identifier.
+#  - name: cause_name
+#    type: string
+#    description: Name of the cause of death, i.e., a single disease or injury or an aggregation of diseases and injuries that causes death or disability.
+#  - name: metric_id
+#    type: string
+#    description: Metric identifier.
+#  - name: metric_name
+#    type: string
+#    description: Name of the metric, i.e., the unit by which a measure is expressed. E.g., number, percent, rate, etc.
+#  - name: year
+#    type: integer
+#    description: Reference year for the estimate.
+#  - name: val
+#    type: number
+#    description: The central value for the estimate.
+#  - name: Upper
+#    type: number
+#    description: Upper bound of the estimate's 95% confidence interval.
+#  - name: Lower
+#    type: number
+#    description: Lower bound of the estimate's 95% confidence interval.
+#dialect:
+#  delimiter: ","
+#  doubleQuote: true
+#  lineTerminator: "\n"
+#  quoteChar: "\""
+#  skipInitialSpace: true
+#  header: true
+#sources:
+#- title: Global Burden of Disease Study 2021 (GBD 2021) Cause-Specific Mortality 1990-2021
+#  path: https://ghdx.healthdata.org/record/ihme-data/gbd-2021-cause-specific-mortality-1990-2021
+#  email: "engage@healthdata.org"
+#- title: Global Burden of Disease Study 2021 (GBD 2021) Covariates 1980-2021
+#  path: https://ghdx.healthdata.org/record/global-burden-disease-study-2021-gbd-2021-covariates-1980-2021
+#  email: "engage@healthdata.org"
+#- title: Global Burden of Disease Study 2021 (GBD 2021) Demographics 1950-2021
+#  path: https://ghdx.healthdata.org/record/ihme-data/global-burden-disease-study-2021-gbd-2021-demographics-1950-2021
+#  email: "engage@healthdata.org"
+#contributors:
+#- title: Global Burden of Disease Collaborative Network
+#  path: http://www.healthdata.org/gbd
+#  role: author
+#  organization: Institute for Health Metrics and Evaluation (IHME)
+#- title: Institute for Health Metrics and Evaluation (IHME)
+#  path: https://ghdx.healthdata.org/organizations/institute-health-metrics-and-evaluation-ihme
+#  role: publisher
+#licenses:
+#- title:  IHME's Free-of-Charge Non-commercial User Agreement
+#  path: https://www.healthdata.org/Data-tools-practices/data-practices/ihme-free-charge-non-commercial-user-agreement
+#---
+# TODO: replace by Probability of Death GBD estimates
+measure_id,measure_name,location_id,location_name,sex_id,sex_name,age_id,age_name,cause_id,cause_name,metric_id,metric_name,year,val,upper,lower
+1,Deaths,135,Brazil,2,Female,8,15-19 years,432,Cervical cancer,3,Rate,2021,0.11757085880565386,0.13375640731036742,0.10339394341449816
+1,Deaths,135,Brazil,2,Female,9,20-24 years,432,Cervical cancer,3,Rate,2021,0.6414870324225108,0.7232398300789424,0.5660194682430106
+1,Deaths,135,Brazil,2,Female,10,25-29 years,432,Cervical cancer,3,Rate,2021,2.1764203109756393,2.3715565960340026,2.010291433204313
+1,Deaths,135,Brazil,2,Female,11,30-34 years,432,Cervical cancer,3,Rate,2021,5.0224345590739405,5.4368611370520314,4.651895612800282
+1,Deaths,135,Brazil,2,Female,12,35-39 years,432,Cervical cancer,3,Rate,2021,8.158116237367782,8.90813523405388,7.498539348384166
+1,Deaths,135,Brazil,2,Female,13,40-44 years,432,Cervical cancer,3,Rate,2021,11.824275411608314,12.710617544298207,10.93929843824698
+1,Deaths,135,Brazil,2,Female,14,45-49 years,432,Cervical cancer,3,Rate,2021,14.30333434902719,15.30916003515284,13.402925657905415
+1,Deaths,135,Brazil,2,Female,15,50-54 years,432,Cervical cancer,3,Rate,2021,16.76665857623983,17.97232647938098,15.634786191377202
+1,Deaths,135,Brazil,2,Female,16,55-59 years,432,Cervical cancer,3,Rate,2021,20.183601205755707,21.72369118820953,18.74154958637695
+1,Deaths,135,Brazil,2,Female,17,60-64 years,432,Cervical cancer,3,Rate,2021,22.142140399393302,23.77692468250558,20.525540990292
+1,Deaths,135,Brazil,2,Female,18,65-69 years,432,Cervical cancer,3,Rate,2021,27.354818587015853,29.580147226134468,25.00704912943834
+1,Deaths,135,Brazil,2,Female,19,70-74 years,432,Cervical cancer,3,Rate,2021,31.62151038915377,34.40942574811965,28.63123112880391
+1,Deaths,135,Brazil,2,Female,20,75-79 years,432,Cervical cancer,3,Rate,2021,36.131449457065514,39.41173413157819,32.17090675198832
+1,Deaths,135,Brazil,2,Female,30,80-84 years,432,Cervical cancer,3,Rate,2021,40.1820931481935,44.96562965893833,33.16332260061114
+1,Deaths,135,Brazil,2,Female,31,85-89 years,432,Cervical cancer,3,Rate,2021,48.753778551980105,56.06898233691987,38.075052928654564
+1,Deaths,135,Brazil,2,Female,32,90-94 years,432,Cervical cancer,3,Rate,2021,54.64407588796694,64.02743635110377,39.01725152782332
+1,Deaths,135,Brazil,2,Female,235,95+ years,432,Cervical cancer,3,Rate,2021,62.68097071666408,76.04656304003694,40.366499800683705
+1,Deaths,135,Brazil,2,Female,1,<5 years,294,All causes,3,Rate,2021,217.91047444610334,262.3649888872215,179.5542861190236
+1,Deaths,135,Brazil,2,Female,6,5-9 years,294,All causes,3,Rate,2021,17.729565384004587,20.23927741407036,15.646707792408368
+1,Deaths,135,Brazil,2,Female,8,15-19 years,294,All causes,3,Rate,2021,44.410583795734965,46.56048277326819,42.61007547441276
+1,Deaths,135,Brazil,2,Female,9,20-24 years,294,All causes,3,Rate,2021,62.423097173010454,63.137083450916776,61.79838278643085
+1,Deaths,135,Brazil,2,Female,10,25-29 years,294,All causes,3,Rate,2021,84.93916954798478,86.02407633766222,83.98065844114049
+1,Deaths,135,Brazil,2,Female,11,30-34 years,294,All causes,3,Rate,2021,119.02446600103927,120.50590848573846,117.70292650244795
+1,Deaths,135,Brazil,2,Female,12,35-39 years,294,All causes,3,Rate,2021,176.17793493690175,178.34778167609068,174.22815837597392
+1,Deaths,135,Brazil,2,Female,13,40-44 years,294,All causes,3,Rate,2021,261.5657869886495,264.6896240913197,258.6701588215953
+1,Deaths,135,Brazil,2,Female,14,45-49 years,294,All causes,3,Rate,2021,390.32223692023445,395.03357850004824,386.0197767482336
+1,Deaths,135,Brazil,2,Female,15,50-54 years,294,All causes,3,Rate,2021,562.4870579810236,569.2416264912729,556.3811998124439
+1,Deaths,135,Brazil,2,Female,16,55-59 years,294,All causes,3,Rate,2021,844.0772716608567,854.2803009028793,835.3175680520453
+1,Deaths,135,Brazil,2,Female,17,60-64 years,294,All causes,3,Rate,2021,1227.3286088289915,1240.52546604436,1215.7363885515888
+1,Deaths,135,Brazil,2,Female,18,65-69 years,294,All causes,3,Rate,2021,1834.2664175146504,1852.3778985957258,1818.568922080532
+1,Deaths,135,Brazil,2,Female,19,70-74 years,294,All causes,3,Rate,2021,2679.921808975557,2704.8151103960627,2658.2259372596905
+1,Deaths,135,Brazil,2,Female,20,75-79 years,294,All causes,3,Rate,2021,4037.3610777406525,4073.781641109431,4004.719802152514
+1,Deaths,135,Brazil,2,Female,23,5-14 years,294,All causes,3,Rate,2021,19.259462107530478,21.29415151702061,17.577247351531216
+1,Deaths,135,Brazil,2,Female,30,80-84 years,294,All causes,3,Rate,2021,6392.351756873731,6442.920287927475,6348.62405110569
+1,Deaths,135,Brazil,2,Female,31,85-89 years,294,All causes,3,Rate,2021,10494.181351806863,10584.462289795732,10415.895849742343
+1,Deaths,135,Brazil,2,Female,32,90-94 years,294,All causes,3,Rate,2021,16944.489401771207,17060.06592013567,16848.526261264247
+1,Deaths,135,Brazil,2,Female,235,95+ years,294,All causes,3,Rate,2021,24800.960895293363,24990.519181243148,24619.681232798444

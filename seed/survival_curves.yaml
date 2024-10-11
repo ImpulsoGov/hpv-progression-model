@@ -1,0 +1,40 @@
+# Cervical Cancer Survival Curves
+
+# Source: Carmo, C. C., & Luiz, R. R. (2011). Survival of a cohort of women with cervical cancer diagnosed in a Brazilian cancer center. Revista de Saúde Pública, 45(4), 661–667. https://doi.org/10.1590/S0034-89102011005000029
+
+# Probabilities of survival where obtained from a cohort study of women with invasive cervical cancer diagnosed by a large cancer center in Rio de Janeiro, Brazil, between 1999 and 2004 (Carlo & Luiz, 2011). The survival curves are presented as functions of the stage at detection and time passed since the initial diagnosis.
+
+# Kaplan-Meier curves were extracted from Carlo & Luiz (2011) Figure 1. We used the WebPlotDigitizer tool (available from: https://web.eecs.utk.edu/~dcostine/personal/PowerDeviceLib/DigiTest/index.html) to extract the approximate data points.
+
+
+I:
+  0: 1.000
+  12: 0.980
+  24: 0.953
+  36: 0.937
+  48: 0.901
+  60: 0.856
+
+II:
+  0: 1.000
+  12: 0.909
+  24: 0.744
+  36: 0.634
+  48: 0.554
+  60: 0.512
+
+III:
+  0: 1.000
+  12: 0.752
+  24: 0.456
+  36: 0.345
+  48: 0.271
+  60: 0.244
+
+IV:
+  0: 1.000
+  12: 0.426
+  24: 0.152
+  36: 0.083
+  48: 0.060
+  60: 0.059

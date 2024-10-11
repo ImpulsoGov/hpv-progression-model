@@ -1,0 +1,62 @@
+#---
+#profile: tabular-data-resource
+#name: gbd-2019-reference-life-table
+#path: https://github.com/ImpulsoGov/hpv-progression-model/blob/main/seed/reference_life_table.csvy
+#title: Global Burden of Disease Study 2019 (GBD 2019) Reference Life Table
+#description: Life expectancy data based on the Global Burden of Disease Study 2019.
+#format: csv
+#mediatype: text/csv
+#encoding: utf-8
+#schema:
+#  fields:
+#  - name: Age
+#    type: integer
+#    description: Age in years
+#  - name: Life Expectancy
+#    type: number
+#    description: Life expectancy at the given age
+#dialect:
+#  delimiter: ","
+#  doubleQuote: true
+#  lineTerminator: "\n"
+#  quoteChar: "\""
+#  skipInitialSpace: true
+#  header: true
+#sources:
+#- title: Global Burden of Disease Study 2019 (GBD 2019) Reference Life Table
+#  path: https://doi.org/10.6069/1D4Y-YQ37
+#  email: "engage@healthdata.org"
+#contributors:
+#- title: Global Burden of Disease Collaborative Network
+#  path: http://www.healthdata.org/gbd
+#  role: author
+#  organization: Institute for Health Metrics and Evaluation (IHME)
+#- title: Institute for Health Metrics and Evaluation (IHME)
+#  path: https://ghdx.healthdata.org/organizations/institute-health-metrics-and-evaluation-ihme
+#  role: publisher
+#licenses:
+#- title:  IHME's Free-of-Charge Non-commercial User Agreement
+#  path: https://www.healthdata.org/Data-tools-practices/data-practices/ihme-free-charge-non-commercial-user-agreement
+#---
+Age,Life Expectancy
+0,88.8718951
+1,88.00051053
+5,84.03008056
+10,79.04633476
+15,74.0665492
+20,69.10756792
+25,64.14930031
+30,59.1962771
+35,54.25261364
+40,49.31739311
+45,44.43332057
+50,39.63473787
+55,34.91488095
+60,30.25343822
+65,25.68089534
+70,21.28820012
+75,17.10351469
+80,13.23872477
+85,9.990181244
+90,7.617724915
+95,5.922359078
