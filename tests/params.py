@@ -8,7 +8,7 @@ from hpv_progression_model.params import (
 )
 
 def test_transition_probabilities():
-    for transition_probabilities in TRANSITION_PROBABILITIES.values():
+    for genotype, transition_probabilities in TRANSITION_PROBABILITIES.items():
         assert transition_probabilities.shape == (
             MAX_FOLLOW_UP_DURATION,
             len(HPVInfectionState),

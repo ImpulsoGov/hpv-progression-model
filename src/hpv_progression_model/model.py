@@ -19,7 +19,7 @@ The primary entities are:
 from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
-from itertools import permutations, product
+from itertools import permutations
 
 import numpy as np
 from prettytable import PrettyTable

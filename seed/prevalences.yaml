@@ -12,7 +12,7 @@ HPV_16: 0.089  # Wendland et al. (2020), Brazil
 HPV_18: 0.012  # Bruni et al. (2010), LAC
 HPV_31: 0.048  # Wendland et al. (2020), Brazil
 HPV_33: 0.008  # Bruni et al. (2010), LAC
-HPV_48: 0.007  # Bruni et al. (2010), LAC
+HPV_45: 0.007  # Bruni et al. (2010), LAC
 HPV_52: 0.088  # Wendland et al. (2020), Brazil
 HPV_58: 0.001  # Bruni et al. (2010), LAC
 OTHER_HR: 0.028  # Bruni et al. (2010), LAC # HPVs 35 + 39 + 51 + 59 + 66 + 68

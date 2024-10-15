@@ -137,7 +137,7 @@ class HPVGenotype(StrEnum):
         HPV_18: HPV Type 18
         HPV_31: HPV Type 31
         HPV_33: HPV Type 33
-        HPV_48: HPV Type 48
+        HPV_45: HPV Type 45
         HPV_52: HPV Type 52
         HPV_55: HPV Type 55
         OTHER_HR: Other high-risk HPV types
@@ -147,7 +147,7 @@ class HPVGenotype(StrEnum):
     HPV_18 = "HPV 18"
     HPV_31 = "HPV 31"
     HPV_33 = "HPV 33"
-    HPV_48 = "HPV 48"
+    HPV_45 = "HPV 45"
     HPV_52 = "HPV 52"
     HPV_58 = "HPV 58"
     OTHER_HR = "Other, High-Risk"
