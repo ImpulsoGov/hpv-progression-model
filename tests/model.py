@@ -88,11 +88,11 @@ def changeless_infection(mock_transition_probabilities_no_change):
 def cohort():
     return Cohort(
         age=15,
-        num_individuals=2000,
+        num_individuals=3000,
         incidences={HPVGenotype.HPV_16: 0.01},
-        quadrivalent_coverage=0.7,
+        quadrivalent_coverage=0.75,
         screening_regimen=PAP_SMEAR_3YRS_25_64,
-        screening_compliance=0.7,
+        screening_compliance=0.8,
         screening_followup_loss=0.05,
     )
 
@@ -100,9 +100,9 @@ def cohort():
 def cohort_without_screening():
     return Cohort(
         age=15,
-        num_individuals=2000,
+        num_individuals=3000,
         incidences={HPVGenotype.HPV_16: 0.01},
-        quadrivalent_coverage=0.7,
+        quadrivalent_coverage=0.75,
         screening_regimen=NATURAL_HISTORY,
         screening_compliance=0.0,
         screening_followup_loss=1.0,
@@ -112,11 +112,11 @@ def cohort_without_screening():
 def cohort_low_vaccination():
     return Cohort(
         age=15,
-        num_individuals=2000,
+        num_individuals=3000,
         incidences={HPVGenotype.HPV_16: 0.01},
-        quadrivalent_coverage=0.1,
+        quadrivalent_coverage=0.05,
         screening_regimen=PAP_SMEAR_3YRS_25_64,
-        screening_compliance=0.7,
+        screening_compliance=0.8,
         screening_followup_loss=0.05,
     )
 
@@ -350,9 +350,9 @@ class TestIndividual:
 class TestCohort:
     def test_initialization(self, cohort):
         assert cohort.age == 15
-        assert cohort.num_individuals == 2000
-        assert len(cohort.individuals) == 2000
-        assert cohort.history[0][HPVInfectionState.HEALTHY] == 2000
+        assert cohort.num_individuals == 3000
+        assert len(cohort.individuals) == 3000
+        assert cohort.history[0][HPVInfectionState.HEALTHY] == 3000
 
     def test_exposure(self, cohort):
         num_initially_infected = sum(
@@ -494,8 +494,8 @@ class TestCohort:
 
     def test_ylls_increase_with_followup_loss(self, cohort):
         cohort_high_followup_loss = deepcopy(cohort)
-        cohort_high_followup_loss.screening_followup_loss = 0.9
-        for _ in range(300):
+        cohort_high_followup_loss.screening_followup_loss = 0.95
+        for _ in range(360):
             cohort.next()
             cohort_high_followup_loss.next()
         # sanity checks: colposcopies should decrease with follow-up loss
