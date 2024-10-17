@@ -477,21 +477,6 @@ ALL_TYPES:
   # NOTE: The following transitions do not come from Kim et al. (2017)        #
   # ######################################################################### #
 
-  # Undetected cancer mortalities
-  # We take the steepest year of mortality from Carmo & Luiz (2011) and assume
-  # this is the constant mortality for undetected cancers. In fact, we do not
-  # know the true mortality rates for undetected cancers, but this approach at
-  # least ensures that detecting a cancer will always be as good as or better
-  # than not detecting it.
-  "LOCAL_UNDETECTED,DECEASED":
-    0: 0.0042
-  
-  "REGIONAL_UNDETECTED,DECEASED":
-    0: 0.0287
-  
-  "DISTANT_UNDETECTED,DECEASED":
-    0: 0.0821
-
   # Detected cancer cure
   # We assume all cancers get cured exactly at the 60th month after detection.
   # This a very rough approximation.

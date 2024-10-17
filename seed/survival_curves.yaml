@@ -7,34 +7,52 @@
 # Kaplan-Meier curves were extracted from Carlo & Luiz (2011) Figure 1. We used the WebPlotDigitizer tool (available from: https://web.eecs.utk.edu/~dcostine/personal/PowerDeviceLib/DigiTest/index.html) to extract the approximate data points.
 
 
-I:
-  0: 1.000
-  12: 0.980
-  24: 0.953
-  36: 0.937
-  48: 0.901
-  60: 0.856
+curves_by_stage_at_detection:
+  I:
+    0: 1.000
+    12: 0.980
+    24: 0.953
+    36: 0.937
+    48: 0.901
+    60: 0.856
 
-II:
-  0: 1.000
-  12: 0.909
-  24: 0.744
-  36: 0.634
-  48: 0.554
-  60: 0.512
+  II:
+    0: 1.000
+    12: 0.909
+    24: 0.744
+    36: 0.634
+    48: 0.554
+    60: 0.512
 
-III:
-  0: 1.000
-  12: 0.752
-  24: 0.456
-  36: 0.345
-  48: 0.271
-  60: 0.244
+  III:
+    0: 1.000
+    12: 0.752
+    24: 0.456
+    36: 0.345
+    48: 0.271
+    60: 0.244
 
-IV:
-  0: 1.000
-  12: 0.426
-  24: 0.152
-  36: 0.083
-  48: 0.060
-  60: 0.059
+  IV:
+    0: 1.000
+    12: 0.426
+    24: 0.152
+    36: 0.083
+    48: 0.060
+    60: 0.059
+
+# Age composition, in years, of the sample for each survival curve. The 0 key
+# indicates participants below the age of 65 years, and the 65 key indicates
+# participants aged 65 years and above. See Carmo & Luiz (2011), Table 1.
+sample_by_age:
+  I:
+    0: 842
+    65: 100
+  II:
+    0: 905
+    65: 228
+  III:
+    0: 950
+    65: 266
+  IV:
+    0: 120
+    65: 29

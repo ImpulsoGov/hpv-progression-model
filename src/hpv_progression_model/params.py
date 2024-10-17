@@ -2,11 +2,9 @@
 
 """Parameter definitions for the HPV progression model.
 
-This module defines parameters related to the natural history of HPV infections, 
-the effectiveness of treatments and vaccinations, and methods to convert survival 
-curves and generate transition matrices for the simulation. These parameters are 
-loaded from external YAML files and are used throughout the package to model 
-HPV progression and interventions.
+This module defines parameters related to the natural history of HPV infections, the effectiveness of treatments and vaccinations, and methods to 
+convert survival curves and generate transition matrices for the simulation. These parameters are loaded from external YAML files and are used throughout 
+the package to model HPV progression and interventions.
 
 Attributes:
     TRANSITION_PROBABILITIES (dict[HPVGenotype, NDArray]): A dictionary mapping HPV genotypes to transition matrices that define the probabilities of progression between various health states in the model.
@@ -43,6 +41,8 @@ Todo:
     * Verify and update the effectiveness of the quadrivalent vaccine for other genotypes.
 """
 
+# REFACTOR: This module needs urgent refactoring! It's a mess.
+
 import csv
 import sys
 from collections import defaultdict
@@ -51,9 +51,11 @@ from copy import deepcopy
 from functools import partial
 from os import PathLike
 from pathlib import Path
+from typing import Any
 
 import yaml
 import numpy as np
+import scipy.stats as stats
 from numpy.typing import NDArray
 
 from .common import (
@@ -130,9 +132,9 @@ def _convert_param_dict_to_array(
     return param_array
 
 
-def _convert_survival_curves_figo_to_lrd(
-    survival_curves: dict[CervicalCancerFIGOStage, dict[int, float]],
-) -> dict[CervicalCancerFIGOStage, dict[int, float]]:
+def _convert_figo_to_lrd(
+    dicts_by_stage: dict[CervicalCancerFIGOStage, dict[Any, float]],
+) -> dict[CervicalCancerFIGOStage, dict[Any, float]]:
     """Converts survival curves from FIGO stages to LRD stages.
 
     This function aggregates the survival curves from FIGO cancer stages and
@@ -140,80 +142,125 @@ def _convert_survival_curves_figo_to_lrd(
     stages based on the mapping in FIGO_TO_LRD_STAGES.
 
     Args:
-        survival_curves (dict[CervicalCancerFIGOStage, dict[int, float]]): A
-        dictionary containing survival curves for each FIGO stage.
+        dicts_by_stage (dict[CervicalCancerFIGOStage, dict[Any, float]]): A
+        (FIGO stage-indexed) dictionary of dictionaries.
 
     Returns:
-        dict[CervicalCancerFIGOStage, dict[int, float]]: A dictionary with survival curves mapped to local, regional or distant stages.
+        dict[CervicalCancerFIGOStage, dict[Any, float]]: A dictionary mapping
+        the values to local, regional or distant stages instead.
     """
     # Internal data structures for counting and summing survival probabilities
     # TODO: consider implementing weighted averages or other methods for
     # combining survival curves from different FIGO stages.
-    survival_curves_counts = {
+    values_count = {
         stage: defaultdict(int) for stage in set(FIGO_TO_LRD_STAGES.values())
     }
-    survival_curves_sum = {
+    values_sum = {
         stage: defaultdict(float) for stage in set(FIGO_TO_LRD_STAGES.values())
     }
 
-    # Aggregate survival curves from FIGO stages into LRD stages
-    for stage, survival_curve in survival_curves.items():
-        for months_since_detection, p_survival in survival_curve.items():
+    # Aggregate sum and count of values from FIGO stages into LRD stages
+    for stage, values_dict in dicts_by_stage.items():
+        for key, value in values_dict.items():
             lrd_stage = FIGO_TO_LRD_STAGES[CervicalCancerFIGOStage[stage]]
-            survival_curves_counts[lrd_stage][months_since_detection] += 1
-            survival_curves_sum[lrd_stage][months_since_detection] += (
-                p_survival
-            )
+            values_count[lrd_stage][key] += 1
+            values_sum[lrd_stage][key] += value
 
-    # Calculate the average survival curve for each LRD stage
-    survival_curves_avg = {}
-    for lrd_stage, survival_curve in survival_curves_sum.items():
-        for months_since_detection, p_survival_sum in survival_curve.items():
-            p_survival_count = (
-                survival_curves_counts[lrd_stage][months_since_detection]
-            )
-            survival_curves_avg[lrd_stage] = {
-                months_since_detection: p_survival_sum / p_survival_count
-            }
-    return survival_curves_avg
+    # Calculate the average value for each LRD stage
+    values_avg = {}
+    for lrd_stage, values_dict in values_sum.items():
+        values_avg[lrd_stage] = {}
+        for key, sum_ in values_dict.items():
+            count = values_count[lrd_stage][key]
+            values_avg[lrd_stage].update({key: sum_ / count})
+    return values_avg
 
 
-def _get_mortality_rates_from_survival_curve(
-    survival_curve: dict[int, float],
-) -> dict[int, float]:
-    """Converts survival probabilities into monthly mortality rates.
+def _get_normal_distribution_from_age_cutoff_and_mode(
+    cutoff: int | float,
+    number_below_cutoff: int,
+    number_above_cutoff: int,
+    mode: int | float,
+) -> tuple[float, float]:
+    """Estimate the probability of a normal distribution from a cutoff.
 
     Args:
-        survival_curve (dict[int, float]): A dictionary where keys are the number of months since cancer detection and values are the probability
-        of survival.
+        cutoff (int | float): The cutoff value.
+        number_below_cutoff (int): The number of values below the cutoff.
+        number_above_cutoff (int): The number of values above the cutoff.
+        mode (int | float): The known or estimated mode of the distribution. Defaults to None, used to estimate the distribution `mu` parameter.
+
 
     Returns:
-        dict[int, float]: A dictionary where keys are months since detection and 
-            values are the corresponding monthly mortality rates.
-    
-    Example:
-        ```py
-        >>> from hpv_progression_model.params import _get_mortality_rates_from_survival_curve
-        >>> _get_mortality_rates_from_survival_curve({0: 1.0, 12: 0.98, 24: 0.953, 36: 0.937, 48: 0.901, 60: 0.856})
-        {0: 0.0017, 12: 0.0023, 24: 0.0014, 36: 0.0033, 48: 0.0042}
-        ```
+        float: The mu parameter of the normal distribution.
+        float: The sigma parameter of the normal distribution.
     """
-    mortality_rates: dict[int, float] = {}
-    months_since_detection_last = 0
-    p_survival_last = 1.0
+    prop_below_cuttoff = (
+        number_below_cutoff / (number_above_cutoff + number_below_cutoff)
+    )
+    z = stats.norm.ppf(prop_below_cuttoff)
+    mu = mode
+    sigma = (cutoff - mu) / z
+    return mu, sigma
 
-    # Iterate through the survival curve and calculate mortality rates
-    for months_since_detection, p_survival in survival_curve.items():
-        mortality = p_survival / p_survival_last
-        months_passed = months_since_detection - months_since_detection_last
-        mortality_rate = 1 - mortality ** (1 / months_passed)
-        mortality_rates[months_since_detection_last] = mortality_rate
 
-        # Update for the next iteration
-        months_since_detection_last = months_since_detection
-        p_survival_last = p_survival
+def _get_normal_distribution_from_age_cutoff_and_stdev(
+    cutoff: int | float,
+    number_below_cutoff: int,
+    number_above_cutoff: int,
+    stdev: float,
+) -> tuple[float, float]:
+    """Estimate the probability of a normal distribution from a cutoff.
 
-    return mortality_rates
+    Args:
+        cutoff (int | float): The cutoff value.
+        number_below_cutoff (int): The number of values below the cutoff.
+        number_above_cutoff (int): The number of values above the cutoff.
+        stdev (float): The known or estimated standard deviation of the sample, used as the distribution `sigma` parameter.
+
+    Returns:
+        float: The mu parameter of the normal distribution.
+        float: The sigma parameter of the normal distribution.
+    """
+    prop_below_cuttoff = (
+        number_below_cutoff / (number_above_cutoff + number_below_cutoff)
+    )
+    z = stats.norm.ppf(prop_below_cuttoff)
+    mu = cutoff - z * stdev
+    sigma = stdev
+    return mu, sigma
+
+
+def _estimate_additional_mortality_from_cancer(
+    cancer_survival_curve: dict[int, float],
+    non_cancer_mortality_rates: dict[int, float],
+    sample_age_distribution: dict[int, float],
+) -> dict[int, float]:
+    additional_mortalities = {}
+    cancer_survival_curve_months = list(sorted(cancer_survival_curve.keys()))
+    for month_idx in range(len(cancer_survival_curve_months)-1):
+        curve_month = cancer_survival_curve_months[month_idx]
+        curve_month_next = cancer_survival_curve_months[month_idx + 1]
+        months_passed = curve_month_next - curve_month
+        age_group_weighted_additional_mortality_sum = 0.0
+        for age, num_individuals in sample_age_distribution.items():
+            non_cancer_mortality = 1 - (
+                (1 - non_cancer_mortality_rates.get(age, 0.0)) ** months_passed
+            )
+            actual_mortality = 1 - (
+                cancer_survival_curve[curve_month_next]
+                / cancer_survival_curve[curve_month]
+            )
+            additional_mortality = actual_mortality - non_cancer_mortality
+            age_group_weighted_additional_mortality_sum += (
+                num_individuals * additional_mortality
+            )
+        # average out the age-weighted additional mortalities and store them
+        additional_mortalities[curve_month] = (
+            age_group_weighted_additional_mortality_sum
+            / sum(sample_age_distribution.values())
+        )
+    return additional_mortalities
 
 
 def _process_gbd_age_groups(age_group: str) -> int:
@@ -292,7 +339,6 @@ def _repeat_parameters_for_all_types(
 
 def load_epidemiological_parameters(
     natural_history_params_file: PathLike,
-    survival_curves_file: PathLike,
 ) -> dict[
     HPVGenotype,
     dict[tuple[HPVInfectionState, HPVInfectionState], float],
@@ -300,9 +346,6 @@ def load_epidemiological_parameters(
     """Loads parameters and survival curves from YAML files""" 
     with open(natural_history_params_file, "r") as f:
         natural_history_params = yaml.load(f, Loader=yaml.FullLoader)
-
-    with open(survival_curves_file, "r") as f:
-        survival_curves_figo = yaml.load(f, Loader=yaml.FullLoader)
 
     # Repeat genotype-agnostic parameters for all available HPV genotypes
     type_agnostic_params = natural_history_params.pop("ALL_TYPES")
@@ -328,28 +371,6 @@ def load_epidemiological_parameters(
                 natural_history_params[genotype][state_pair][period] = (
                     _process_ranges(value) if isinstance(value, str) else value
                 )
-
-    # Compute mortality rates for each LRD stage based on survival curves
-    # and assign them to the natural history parameters
-    survival_curves_lrd = _convert_survival_curves_figo_to_lrd(
-        survival_curves_figo,
-    )
-    mortality_rates = {
-        stage: _get_mortality_rates_from_survival_curve(survival_curve)
-        for stage, survival_curve in survival_curves_lrd.items()
-    }
-    for genotype, genotype_params in natural_history_params.items():
-        for stage_at_detection, mortality_rate in mortality_rates.items():
-            # strip mortality after the cancer is considered cured
-            mortality_rate[CONSIDER_DETECTED_CANCERS_CURED_AT] = 0.0
-            mortality_rate = {
-                k: v for k, v in mortality_rate.items()
-                if k <= CONSIDER_DETECTED_CANCERS_CURED_AT
-            }
-            genotype_params[(
-                stage_at_detection,
-                HPVInfectionState.DECEASED,
-            )] = mortality_rate
 
     # convert genotype strings into HPVGenotype enums
     for genotype in HPVGenotype:
@@ -417,6 +438,110 @@ def load_mortality_rates(
                     )
 
     return mortality_rates_cervical_cancer, mortality_rates_all_causes
+
+
+def load_cancer_additional_mortalities(
+    survival_curves_file: PathLike,
+    non_cancer_mortality_rates: dict[int, float],
+    mode_cancer_prevalence: int | float,
+    consider_detected_cancers_cured_at: int = 60,
+) -> dict[tuple[HPVInfectionState, HPVInfectionState], float]:
+
+    with open(survival_curves_file, "r") as f:
+        survival_curves_contents = yaml.load(f, Loader=yaml.FullLoader)
+        survival_curves_figo = survival_curves_contents[
+            "curves_by_stage_at_detection"
+        ]
+        sample_by_stage_and_age = survival_curves_contents["sample_by_age"]
+    
+    additional_mortalities_by_figo_stage = {}
+
+    age_cutoff = max(sample_by_stage_and_age["I"].keys())
+    num_individuals_below_cutoff_total = sum(
+        sample_by_stage_and_age[stage][0]
+        for stage in sample_by_stage_and_age
+    )
+    num_individuals_above_cutoff_total = sum(
+        sample_by_stage_and_age[stage][age_cutoff]
+        for stage in sample_by_stage_and_age
+    )
+    num_individuals_in_sample = (
+        num_individuals_below_cutoff_total + num_individuals_above_cutoff_total
+    )
+    # first, get the sample estimated standard deviation using the mode
+    _, sigma = _get_normal_distribution_from_age_cutoff_and_mode(
+        age_cutoff,
+        num_individuals_below_cutoff_total,
+        num_individuals_above_cutoff_total,
+        mode_cancer_prevalence,
+    )
+    # then, get the estimated average ages for each stage subgroup, assuming
+    # they all inherit the same standard deviation as the larger sample
+    for stage_figo, sample_by_age in sample_by_stage_and_age.items():
+        sample_age_distribution = {}
+        mu, _ = _get_normal_distribution_from_age_cutoff_and_stdev(
+            age_cutoff,
+            sample_by_age[0],
+            sample_by_age[age_cutoff],
+            sigma,
+        )
+
+        # use the estimated distribution parameters to estimate the number of
+        # individuals per 5-year age group in the sample
+        for age in range(0, 105, 5):
+            if age == 0:
+                prob = stats.norm.cdf(age, mu, sigma)
+            elif age == 100:
+                prob = 1 - stats.norm.cdf(95, mu, sigma)
+            else:
+                prob = (
+                    stats.norm.cdf(age, mu, sigma)
+                    - stats.norm.cdf(age - 5, mu, sigma)
+                )
+            sample_age_distribution[age] = int(
+                prob * num_individuals_in_sample
+            )
+
+        additional_mortalities_by_figo_stage[stage_figo] = (
+            _estimate_additional_mortality_from_cancer(
+                survival_curves_figo[stage_figo],
+                non_cancer_mortality_rates,
+                sample_age_distribution,
+            )
+        )
+    additional_mortalities_lrd = _convert_figo_to_lrd(
+        additional_mortalities_by_figo_stage,
+    )
+    
+    # cap additional mortality to some months, after which the cancer is
+    # considered cured (i.e., no additional mortality comes from it)
+    additional_mortalities_capped = {}
+    for stage in additional_mortalities_lrd.keys():
+        additional_mortalities_capped[stage] = {
+            k: v for k, v in additional_mortalities_lrd[stage].items()
+            if k <= consider_detected_cancers_cured_at
+        }
+        additional_mortalities_capped[stage][
+            consider_detected_cancers_cured_at
+        ] = 0.0
+
+    undetected_cancer_additional_mortalities = {}
+    for detected_stage, detected_mortality in additional_mortalities_capped.items():
+        undetected_mortality = max(detected_mortality.values())
+        undetected_stage = HPVInfectionState(detected_stage - 1)
+        undetected_cancer_additional_mortalities[undetected_stage] = {
+            0: undetected_mortality
+        }
+
+    additional_mortalities_capped.update(
+        undetected_cancer_additional_mortalities,
+    )
+
+    return {
+        (stage, HPVInfectionState.DECEASED): additional_mortality
+        for stage, additional_mortality
+        in additional_mortalities_capped.items()
+    }
 
 
 def load_prevalences(prevalences_file: PathLike) -> dict[HPVGenotype, float]:
@@ -554,15 +679,6 @@ DEFAULT_DISCOUNT_RATE: float = 0.043
 # https://drive.google.com/file/d/1joUA-2nkBiv5sABB2UOfQMRczuH1j5Cs/view
 DEFAULT_AGE_FIRST_EXPOSURE: float = 15.2
 
-# Transition probabilities for each HPV genotype
-_epidemiological_params = load_epidemiological_parameters(
-    natural_history_params_file=_NATURAL_HISTORY_PARAMS_FILE,
-    survival_curves_file=_SURVIVAL_CURVES_FILE,
-)
-TRANSITION_PROBABILITIES: dict[HPVGenotype, NDArray] = {
-    genotype: _convert_param_dict_to_array(params)
-    for genotype, params in _epidemiological_params.items()
-}
 
 # Mortality rates for all other causes not related to cervical cancer
 (
@@ -577,6 +693,34 @@ NON_CERVICAL_CANCER_MORTALITY_RATES: dict[int, float] = {
    - _cervical_cancer_mortality_rates.get(t, 0.0)
    for t in _all_cause_mortality_rates
 }
+
+# Mode of the distribution of cancer prevalence in Brazil, 2021
+# Source: https://vizhub.healthdata.org/gbd-results?
+# params=gbd-api-2021-permalink/2845eaee2d516e046adbc01b8c9c8c91
+MODE_CANCER_PREVALENCE: int = 37
+
+# Transition probabilities for each HPV genotype
+_epidemiological_params = load_epidemiological_parameters(
+    natural_history_params_file=_NATURAL_HISTORY_PARAMS_FILE,
+)
+
+# Additional mortality for all 
+_cancer_additional_mortality_rates = load_cancer_additional_mortalities(
+    survival_curves_file=_SURVIVAL_CURVES_FILE,
+    non_cancer_mortality_rates=NON_CERVICAL_CANCER_MORTALITY_RATES,
+    mode_cancer_prevalence=MODE_CANCER_PREVALENCE,
+    consider_detected_cancers_cured_at=CONSIDER_DETECTED_CANCERS_CURED_AT,
+)
+for genotype in _epidemiological_params:
+    _epidemiological_params[genotype].update(
+        _cancer_additional_mortality_rates
+    )
+
+TRANSITION_PROBABILITIES: dict[HPVGenotype, NDArray] = {
+    genotype: _convert_param_dict_to_array(params)
+    for genotype, params in _epidemiological_params.items()
+}
+
 
 _prevalences = load_prevalences(_PREVALENCES_FILE)
 INCIDENCES = {

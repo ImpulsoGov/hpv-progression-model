@@ -236,12 +236,9 @@ class Individual(Longitudinal):
                     infections_to_keep.add(infection)
             self.infections = infections_to_keep
 
-            # Add non-cancer death probability to the transition probabilities
-            # NOTE: Cancer states have their own mortality curves that also
-            # include mortality from other causes
-            if self.state not in CANCER_STATES:
-                if self.non_cancer_death_probability >= RNG.random():
-                    self.state = HPVInfectionState.DECEASED
+            # Apply non-cancer related death probability
+            if self.non_cancer_death_probability >= RNG.random():
+                self.state = HPVInfectionState.DECEASED
 
             # Do not consider infections for deceased individuals
             if self.state == HPVInfectionState.DECEASED:
