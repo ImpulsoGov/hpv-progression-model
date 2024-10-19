@@ -34,9 +34,10 @@ Todo:
 """
 
 import sys
-from collections.abc import Callable, defaultdict
+from collections import defaultdict
+from collections.abc import Callable
+from contextlib import contextmanager
 from copy import deepcopy
-from functools import contextmanager
 from typing import Any, Generator
 
 from prettytable import PrettyTable
