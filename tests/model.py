@@ -369,7 +369,7 @@ class TestCohort:
         num_vaccinated = sum(
             1 for i in cohort.individuals if i.is_vaccinated
         )
-        expected_vaccinated = int(0.5 * 2000)
+        expected_vaccinated = int(0.75 * 3000)
         assert num_vaccinated == expected_vaccinated
 
     def test_screening(self, cohort_without_screening):
