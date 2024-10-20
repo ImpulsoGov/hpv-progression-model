@@ -200,7 +200,7 @@ class Individual(Longitudinal):
         self,
         age: int | float,
     ):
-        self.id_: int = f"{RNG.integers(10**12):012d}"
+        self.id_: int = f"{abs(RNG.integers(10**12)):012d}"
 
         self._age_months: int = int(12 * age)
         self._t: int = 0
@@ -316,18 +316,16 @@ class Individual(Longitudinal):
         # as first-time lesions. Alternatively, we could change the transition
         # probabilities.
         treatable_states = [HPVInfectionState.CIN2, HPVInfectionState.CIN3]
-        infections_after_treatment = set()
+        infections_to_remove = set()
         for infection in self.infections:
             if infection.current_state in treatable_states:
                 if SEE_AND_TREAT_EFFECTIVENESS >= RNG.random():
-                    pass  # treatment works, do not re-include in infections
+                    infections_to_remove.add(infection)
                 else:
                     for infection in self.infections:
+                        # remove lesion, but keep the infection active
                         infection._current_state = HPVInfectionState.INFECTED
-                        infections_after_treatment.add(infection)
-            else:
-                infections_after_treatment.add(infection)
-        self.infections = infections_after_treatment
+        self.infections.difference_update(infections_to_remove)
 
     def update_screening_recommendation(self) -> None:
         """Updates the screening recommendation for the individual.
@@ -810,7 +808,7 @@ class Cohort(Longitudinal):
 
     @property
     def id_(self) -> int:
-        return hash(self.individuals)
+        return hash(":".join(sorted([i.id_ for i in self.individuals])))
 
     @property
     def history(self) -> dict[int, dict[HPVInfectionState, int]]:
@@ -897,7 +895,7 @@ class Cohort(Longitudinal):
         for state, prevalence in self.prevalences.items():
             prevalence_table.add_row([
                 f"Prevalence: {state.name}",
-                f"{prevalence:.1%}",
+                f"{prevalence:.2%}",
             ])
         print(prevalence_table, end="\n\n")
 
@@ -905,6 +903,8 @@ class Cohort(Longitudinal):
         outcomes_table = PrettyTable()
         outcomes_table.field_names = ["Outcome", "# Events"]
         for outcome, total in self.outcomes_accumulated.items():
+            if isinstance(total, float):
+                total = f"{total:.2f}"
             outcomes_table.add_row([outcome, total])
         print(outcomes_table, end="\n\n")
 
