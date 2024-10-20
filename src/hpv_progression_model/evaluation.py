@@ -57,7 +57,7 @@ from .params import (
 )
 
 
-class DichotomousComparison(Immutable):
+class DichotomousComparison(object):
     """Compares dichotomous outcomes of an intervention and a comparator group.
 
     This class calculates key metrics such as risk ratio, odds ratio, risk
@@ -88,6 +88,10 @@ class DichotomousComparison(Immutable):
         comparator_events: int,
         comparator_no_events: int,
     ):
+        self._intervention_events = intervention_events
+        self._intervention_no_events = intervention_no_events
+        self._comparator_events = comparator_events
+        self._comparator_no_events = comparator_no_events
 
         intervention_sample_size = intervention_events + intervention_no_events
         comparator_sample_size = comparator_events + comparator_no_events
@@ -124,8 +128,8 @@ class DichotomousComparison(Immutable):
 
         # Number Needed to Treat (NNT) (inverse of absolute risk reduction)
         self.number_needed_to_treat: int = (
-            int(1 / self.absolute_risk_reduction)
-            if self.absolute_risk_reduction > 0 else float("inf")
+            int(1 / self.risk_difference)
+            if self.risk_difference > 0 else float("inf")
         )
 
     @property
@@ -144,7 +148,7 @@ class DichotomousComparison(Immutable):
         ])
 
 
-class SimulationResults(Immutable):
+class SimulationResults(object):
     """Encapsulates the results of a cohort simulation.
 
     This class stores the baseline and endline cohort states and provides methods 
@@ -213,7 +217,7 @@ class SimulationResults(Immutable):
         """
         events = defaultdict(int)
         for outcome in ObservableOutcome:
-            for t in range(self.baseline.t, self.endline.t + 1):
+            for t in range(self.baseline.t, self.endline.t):
                 events[outcome] += self.endline.outcomes[t][outcome]
         return events
 
@@ -415,10 +419,10 @@ def compare_results(
     comparisons = {}
     for outcome in ObservableOutcome:
         comparisons[outcome] = DichotomousComparison(
-            intervention.events,
-            intervention.no_events,
-            comparator.events,
-            comparator.no_events,
+            intervention.events[outcome],
+            intervention.no_events[outcome],
+            comparator.events[outcome],
+            comparator.no_events[outcome],
         )
     return comparisons
 
