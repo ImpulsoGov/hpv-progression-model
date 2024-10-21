@@ -524,7 +524,7 @@ class Cohort(Longitudinal):
         self,
         age: int | float,
         num_individuals: int,
-        incidences: dict[HPVGenotype, float],
+        incidences_by_age: dict[HPVGenotype, dict[int, float]],
         quadrivalent_coverage: float,
         screening_regimen: ScreeningRegimen,
         screening_compliance: float,
@@ -541,7 +541,9 @@ class Cohort(Longitudinal):
         self._t: int = 0
         self._age_months: int = int(12 * age)
         self._age_started: float = float(age)
-        self.incidences: dict[HPVGenotype, float] = incidences
+        self._incidences_by_age: dict[HPVGenotype, dict[int, float]] = (
+            incidences_by_age
+        )
         self.quadrivalent_coverage: float = quadrivalent_coverage
         self.screening_regimen: ScreeningRegimen = screening_regimen
         self.screening_compliance: float = screening_compliance
@@ -629,8 +631,20 @@ class Cohort(Longitudinal):
             if individual.state == HPVInfectionState.CIN3:
                 self._outcomes[self.t][ObservableOutcome.CIN3_DETECTIONS] += 1
             if (1 - self.screening_followup_loss) >= RNG.random():
-                individual.see_and_treat_lesions()
                 self._outcomes[self.t][ObservableOutcome.COLPOSCOPIES] += 1
+                if individual.state == HPVInfectionState.CIN2:
+                    self._outcomes[self.t][
+                        ObservableOutcome.EXCISIONS_TYPES_1_2
+                    ] += 1
+                    self._outcomes[self.t][ObservableOutcome.BIOPSIES] += 1
+                if individual.state == HPVInfectionState.CIN3:
+                    self._outcomes[self.t][
+                        ObservableOutcome.EXCISIONS_TYPE_3
+                    ] += 1
+                    self._outcomes[self.t][ObservableOutcome.BIOPSIES] += 1
+                if individual.state in CANCER_STATES:
+                    self._outcomes[self.t][ObservableOutcome.BIOPSIES] += 1
+                individual.see_and_treat_lesions()
 
         self._update_history_transitions()
         self._update_outcomes()
@@ -805,12 +819,24 @@ class Cohort(Longitudinal):
         return self._age_started
 
     @property
-    def id_(self) -> int:
-        return hash(":".join(sorted([i.id_ for i in self.individuals])))
-
-    @property
     def history(self) -> dict[int, dict[HPVInfectionState, int]]:
         return self._history_states
+
+    @property
+    def id_(self) -> int:
+        return hash(":".join(sorted([i.id_ for i in self.individuals])))
+    
+    @property
+    def incidences(self) -> dict[HPVGenotype, float]:
+        incidences: dict[HPVGenotype, float] = {}
+        for genotype, incidences_by_age in self._incidences_by_age.items():
+            last_age_with_incidence_data = max(
+                k for k in incidences_by_age.keys() if k <= self.age
+            )
+            incidences[genotype] = (
+                incidences_by_age[last_age_with_incidence_data]
+            )
+        return incidences
 
     @property
     def num_individuals(self) -> int:

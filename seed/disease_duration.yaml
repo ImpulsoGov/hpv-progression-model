@@ -1,0 +1,15 @@
+# Duration of incident human papillomavirus (HPV) infection, in months
+
+# Muñoz, N., Méndez, F., Posso, H., Molano, M., van den Brule, A. J. C., … Ronderos, M. (2004). Incidence, Duration, and Determinants of Cervical Human Papillomavirus Infection in a Cohort of Colombian Women with Normal Cytological Results. The Journal of Infectious Diseases, 190(12), 2077–2087. https://doi.org/10.1086/425907
+
+# The parameters below were extracted Table 3, "Total". We decided not to split into different age groups because of the small sample sizes.
+
+HPV_16: 13.7
+HPV_18: 11.9
+HPV_31: 16.5
+HPV_33: 13.4
+HPV_45: 12.2
+HPV_52: 9.7
+HPV_58: 14.8
+OTHER_HR: 14.8
+OTHER_LR: 11.1

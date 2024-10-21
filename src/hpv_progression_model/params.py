@@ -67,6 +67,8 @@ from .common import (
 
 # Directory containing seed files for simulation parameters
 _SEEDS_DIR = Path(__file__).parents[2] / "seed"
+_DISEASE_DURATION_FILE = _SEEDS_DIR / "disease_duration.yaml"
+_INCIDENCES_BY_AGE_FILE = _SEEDS_DIR / "incidence_by_age.csvy"
 _MORTALITY_FILE = _SEEDS_DIR / "gbd_mortality.csvy"
 _NATURAL_HISTORY_PARAMS_FILE = _SEEDS_DIR / "natural_history_params.yaml"
 _PREVALENCES_FILE = _SEEDS_DIR / "prevalences.yaml"
@@ -75,6 +77,15 @@ _SURVIVAL_CURVES_FILE = _SEEDS_DIR / "survival_curves.yaml"
 
 MAX_FOLLOW_UP_DURATION = 100 * 12  # 100 years
 CONSIDER_DETECTED_CANCERS_CURED_AT = 60  # cancers are deemed cured after 5 yrs
+
+# Average age of the first sexual intercourse
+# Source: Associação Hospitalar Moinhos de Vento. (2020). Estudo
+# epidemiológico sobre a prevalência nacional de infecção pelo HPV
+# (POP-BRASIL) - 2015-2017 (1st ed., p.20). Porto Alegre, RS: Associação
+# Hospitalar Moinhos de Vento.
+# https://drive.google.com/file/d/1joUA-2nkBiv5sABB2UOfQMRczuH1j5Cs/view
+DEFAULT_AGE_FIRST_EXPOSURE: int = 15
+
 
 # Utility functions
 
@@ -542,6 +553,29 @@ def load_cancer_additional_mortalities(
     }
 
 
+def load_disease_durations(disease_durations_file: PathLike) -> dict[HPVGenotype, float]:
+    """Loads HPV infection durations, in months, from a YAML file.
+    
+    Args:
+        disease_durations_file (PathLike): The path to the YAML file containing the disease durations.
+    
+    Returns:
+        dict[HPVGenotype, float]: A dictionary mapping HPV genotypes to their
+        average durations.
+    """
+    with open(disease_durations_file, "r") as f:
+        disease_durations = yaml.load(f, Loader=yaml.FullLoader)
+    
+    # convert genotype strings into HPVGenotype enums
+    for genotype in HPVGenotype:
+        if genotype.name not in disease_durations:
+            raise ValueError(
+                f"No duration found for {genotype.value}",
+            )
+        disease_durations[genotype] = disease_durations.pop(genotype.name)
+    return disease_durations
+
+
 def load_prevalences(prevalences_file: PathLike) -> dict[HPVGenotype, float]:
     """Loads prevalences from a YAML file.
     
@@ -600,6 +634,78 @@ def load_reference_life_table(
     return reference_life_table
 
 
+def load_relative_incidences_by_age(
+    incidences_by_age_file: PathLike,
+    age_sexual_initiation: int = DEFAULT_AGE_FIRST_EXPOSURE,
+) -> dict[float, float]:
+    """Loads the relative incidence of HPV as a function of age.
+    
+    Args:
+        incidences_by_age_file (PathLike):  The path to the CSV file
+        containing the ages and their respective incidences.
+    
+    Returns:
+        dict[int, float]: A dictionary mapping ages, in years, to their
+        respective incidences, as a proportion of the initial incidence.
+    """
+    incidences_by_age = {}
+
+    # read raw incidence rates by age from Muñoz et al. (2004)
+    with open(incidences_by_age_file, "r") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            # Skip the metadata comments and the header
+            if row and not row[0].startswith("#") and not row[0] == "Age":  
+                # age keys are approximated to the closest integers
+                incidences_by_age[int(round(float(row[0])))] = float(row[1])
+    
+    # extrapolate the first age group to younger ages
+    initial_incidence = incidences_by_age[min(incidences_by_age.keys())]
+    incidences_by_age[0] = 0.0
+    incidences_by_age[age_sexual_initiation] = initial_incidence
+
+    # return all values as relative to the initial incidences
+    return {k: (v / initial_incidence) for k, v in incidences_by_age.items()}
+
+
+def estimate_age_adjusted_incidences(
+    reference_incidence: float,
+    reference_age: int | float,
+    relative_incidences_by_age: dict[int, float],
+) -> dict[int, float]:
+    """Estimates the age-adjusted incidences of HPV.
+
+    Args:
+        reference_incidence (float): The incidence of HPV at the reference age.
+        reference_age (int | float): The reference age for the given incidence
+            estimate.
+        relative_incidences_by_age (dict[int, float]): A dictionary mapping
+            ages, in years, to their respective incidences, as a proportion
+            of the initial incidence.
+
+    Returns:
+        dict[int, float]: A dictionary mapping ages, in years, to their
+            respective incidences, adjusted for the expected changes in 
+            incidence as age changes.
+    """
+
+    reference_age_key = max(
+        k for k in relative_incidences_by_age.keys() if k <= reference_age
+    )
+    relative_incidence_reference_age = (
+        relative_incidences_by_age[reference_age_key]
+    )
+
+    age_adjusted_incidences = {}
+    for age, relative_incidence in relative_incidences_by_age.items():
+        adjustment_factor = (
+            relative_incidence / relative_incidence_reference_age
+        )
+        age_adjusted_incidences[age] = reference_incidence * adjustment_factor
+
+    return age_adjusted_incidences
+
+
 def estimate_life_expectancy(
     age: int,
     reference_life_table: dict[int, float],
@@ -625,57 +731,22 @@ def estimate_life_expectancy(
 
 def estimate_incidence(
     prevalence: float,
-    clearance_rates: Iterable[float],
-    followup_duration: int = MAX_FOLLOW_UP_DURATION,
+    disease_duration: float,
 ) -> float:  
     """
     Estimate the average incidence rate given prevalence and clearance rate.
     
     Args:
         prevalence (float): The disease prevalence in the population.
-        clearance_rates (NDArray): The monthly probabilities of regression to
-        the healthy state.
-        followup_duration (int): The maximum number of months to simulate for the cohort.
+        disease_duration (float): The average disease duration, in months.
 
     Returns:
         float: Estimated incidence rate.
-
-    Notes:
-        This is a naive estimation that takes into account only the disease
-        _regression_ to the healthy state, ignoring its progression to more
-        severe states, which can prolong the disease duration.
     """
-
-    # Time vector from 0 to max_time months
-    weighted_disease_durations = []
-    prop_infected = np.arange(followup_duration + 1)
-    prop_infected[0] = 1.0
-    clearance_rate = clearance_rates[0]
-    
-    # Probability of remaining infected after t months
-    for t in range(0, followup_duration + 1):
-        clearance_rate = clearance_rates.get(t, clearance_rate)
-        cleared = (prop_infected[t-1] * clearance_rate)
-        weighted_disease_durations.append(t * cleared)
-        prop_infected[t] = prop_infected[t-1] - cleared
-    
-    avg_disease_duration = np.sum(weighted_disease_durations)
-    
-    # Use prevalence and average disease duration to estimate incidence rate
-    incidence_rate = prevalence / avg_disease_duration
-    
-    return incidence_rate
+    return prevalence / disease_duration
 
 # Default yearly discount rate for the discounting benefits in the future
 DEFAULT_DISCOUNT_RATE: float = 0.043
-
-# Average age of the first sexual intercourse
-# Source: Associação Hospitalar Moinhos de Vento. (2020). Estudo
-# epidemiológico sobre a prevalência nacional de infecção pelo HPV
-# (POP-BRASIL) - 2015-2017 (1st ed., p.20). Porto Alegre, RS: Associação
-# Hospitalar Moinhos de Vento.
-# https://drive.google.com/file/d/1joUA-2nkBiv5sABB2UOfQMRczuH1j5Cs/view
-DEFAULT_AGE_FIRST_EXPOSURE: float = 15.2
 
 
 # Mortality rates for all other causes not related to cervical cancer
@@ -720,17 +791,28 @@ TRANSITION_PROBABILITIES: dict[HPVGenotype, NDArray] = {
 }
 
 
+# estimate age-adjusted incidences
 _prevalences = load_prevalences(_PREVALENCES_FILE)
-INCIDENCES = {
+_disease_durations = load_disease_durations(_DISEASE_DURATION_FILE)
+_reference_incidences = {
     genotype: estimate_incidence(
-        prevalence,
-        clearance_rates=_epidemiological_params[genotype][(
-            HPVInfectionState.INFECTED,
-            HPVInfectionState.HEALTHY,
-        )],
+        prevalence=_prevalences[genotype],
+        disease_duration=_disease_durations[genotype],
     )
-    for genotype, prevalence in _prevalences.items()
+    for genotype in HPVGenotype
 }
+_reference_incidences_age = 21  # approximate age of the POP-BRASIL study
+_relative_incidences_by_age = load_relative_incidences_by_age(
+    _INCIDENCES_BY_AGE_FILE,
+)
+
+INCIDENCES: dict[HPVGenotype, dict[int, float]] = {}
+for genotype in HPVGenotype:
+    INCIDENCES[genotype] = estimate_age_adjusted_incidences(
+        reference_incidence=_reference_incidences[genotype],
+        reference_age=_reference_incidences_age,
+        relative_incidences_by_age=_relative_incidences_by_age,
+    )
 
 # Probability that an individual becomes immune to a specific HPV genotype
 # after an infection

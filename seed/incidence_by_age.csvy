@@ -1,0 +1,68 @@
+#---
+#profile: tabular-data-resource
+#name: munoz-et-al-2004-incidence-by-age
+#path: https://github.com/ImpulsoGov/hpv-progression-model/blob/main/seed/incidence_by_age.csvy
+#title: Incidence rate of human papillomavirus (HPV) infection, by age, among cytologically normal women in Bogota´, Colombia, 1993–2001, All HPV types.
+#format: csvy
+#mediatype: text/vnd.yaml
+#encoding: utf-8
+#schema:
+#  fields:
+#  - name: Age
+#    type: number
+#    description: Age, years
+#  - name: Incidence
+#    type: number
+#    description: Incidence rate/100 women-years
+#dialect:
+#  delimiter: ","
+#  doubleQuote: true
+#  lineTerminator: "\n"
+#  quoteChar: "\""
+#  skipInitialSpace: true
+#  header: true
+#sources:
+#- title: Incidence, Duration, and Determinants of Cervical Human Papillomavirus Infection in a Cohort of Colombian Women with Normal Cytological Results
+#  path: https://doi.org/10.1086/425907
+#  email: "famendez@univalle.edu.co"
+#contributors:
+#- title: Nubia Muñoz
+#  role: author
+#  organization: Instituto Nacional de Cancerología, Bogotá
+#- title: Fabián Méndez
+#  role: author
+#  organization: Escuela de Salud Pública, Universidad del Valle, Cali
+#- title: Héctor Posso
+#  role: author
+#  organization: Instituto Nacional de Cancerología, Bogotá
+#- title: Mónica Molano
+#  role: author
+#  organization: Instituto Nacional de Cancerología, Bogotá
+#- title: Adrian J. C. van den Brule
+#  role: author
+#  organization: Department of Pathology, Vrije Universiteit Medical Center, Amsterdam
+#- title: Margarita Ronderos
+#  role: author
+#  organization: Instituto Nacional de Cancerología, Bogotá
+#- title: Chris Meijer
+#  role: author
+#  organization: Department of Pathology, Vrije Universiteit Medical Center, Amsterdam
+#- title: Álvaro Muñoz
+#  role: author
+#  organization: Department of Epidemiology, Johns Hopkins Bloomberg School of Public Health, Baltimore
+#licenses:
+#- title:  All rights reserved
+#  path: https://academic.oup.com/pages/legal-and-policy/legal-notice
+#_comments:
+#- Approximate values for data points from Muñoz at al. (2004), Figure 1(A), using the WebPlotDigitizer tool (available from https://web.eecs.utk.edu/~dcostine/personal/PowerDeviceLib/DigiTest/index.html).
+#---
+"Age","Incidence"
+16.910569105691053,17.311827956989248
+21.788617886178862,10.21505376344086
+26.747967479674795,7.365591397849462
+31.788617886178862,5.698924731182796
+36.7479674796748,5.107526881720428
+41.70731707317073,4.4086021505376305
+46.7479674796748,5.322580645161289
+51.6260162601626,6.075268817204304
+61.6260162601626,1.5591397849462323
