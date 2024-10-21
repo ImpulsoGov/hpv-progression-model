@@ -7,18 +7,18 @@
 
 # Data drawn from the POP-Brazil Study, representative of a large convience sample from Brazilian capitals. For genotypes whose prevalences among women were reported in Wendland et al. (2020)'s "Results" section and Figure 2, we directly inputed the available data (HPV types 16, 31, 52 and 58).
 
-# For HPV types 18, 33 and 45, we used the genotype-specific prevalences from a substudy of randomly selected POP-Brasil samples, available from Bandeira et al. (2024), Table 3 (Linear Array method results). Note that, unlike the results from Wendland et al. (2020), results from Bandeira et al. (2024) were not presented separately for men and women. It is not possible to know from the data available in Bandeira et al. (2024) how many men participated in the substudy, but since men were only a 21% minority of the POP-Brasil larger study (see Wendland et al., 2020, "Results" section), we expect the women-specific prevalences not to depart much from what was reported.
+# For HPV types 18, 33 and 45, we used the genotype-specific prevalences from a substudy of randomly selected POP-Brasil samples, available from Bandeira et al. (2024), Table 3 (Linear Array method results). There are some differences in how data is reported between this study and Wendland et al. (2020), such as the fact that prevalences are not presented separately for men and women. More importantly, even if Bandeira et al. (2024) supposedly uses a random subsample of the same POP-Brazil study, the prevalences they report are consistently higher for the genotypes that are also reported (for women) by Wendland et al. (2020) - by a factor of 2.21 for HPV 6; 2.11 for HPV 16; 1.83 for HPV 31; 2.01 for HPV 52; 2.09 for HPV 53; 2.07 for HPV 58; and 2.14 for HPV 61. We took the geometric mean of these factors (2.06) and used it as an adjustment factor for all reported results from Bandeira et al. (2024).
 
-# Prevalences for the "other high risk" category were taken from Wendland et al. (2020)'s 38.6% prevalence of high risk genotypes among women. We then discounted the prevalences of genotypes 16, 18, 31, 33, 45, 52 and 58 from this total, assuming the probability of being infected by a genotype is independent of the probabilities of being infected by other genotypes, and using the inclusion-exclusion principle (https://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle). As the result of this calculation returns a 39,9% prevalence of HR genotypes - close to, but slightly over the 38.6% found in the study, we assume the prevalence of the remaining genotypes HR genotype is 0.0%.
+# Prevalences for the "other high risk" category were taken from Wendland et al. (2020)'s 38.6% prevalence of high risk genotypes among women. We then discounted the prevalences of genotypes 16, 18, 31, 33, 45, 52 and 58 from this total, assuming the probability of being infected by a genotype is independent of the probabilities of being infected by other genotypes, and using the inclusion-exclusion principle (https://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle).
 
 # Prevalences for the "other low risk" category were taken from Wendland et al. (2020)'s 54.6% prevalence of all genotypes among women, discounting for the 38.6% prevalence of high risk genotypes and taking into account the inclusion-exclusion principle.
 
 HPV_16: 0.089  # Wendland et al. (2020)
-HPV_18: 0.089  # Bandeira et al. (2024)
+HPV_18: 0.043  # Bandeira et al. (2024) (8.9%), adjusted for overestimation
 HPV_31: 0.048  # Wendland et al. (2020)
-HPV_33: 0.040  # Bandeira et al. (2024)
-HPV_45: 0.075  # Bandeira et al. (2024)
+HPV_33: 0.019  # Bandeira et al. (2024) (4.0%), adjusted for overestimation
+HPV_45: 0.036  # Bandeira et al. (2024) (7.5%), adjusted for overestimation
 HPV_52: 0.088  # Wendland et al. (2020)
 HPV_58: 0.061  # Wendland et al. (2020)
-OTHER_HR: 0.00   # P(HR) - P(HPV16) - P(HPV18) - P(HPV31) - P(HPV33) - P(HPV45) - P(HPV52) - P(HPV58) + P(HPV16|HPV18) + P(HPV16|HPV31) + ... - P(HPV16|HPV18|HPV33) - P(HPV16|HPV18|HPV45) - ... +  P(HPV16|HPV18|HPV33|HPV45) + P(HPV16|HPV18|HPV33|HPV52) + ... - P(HPV16|HPV18|HPV33|HPV45|HPV52) - P(HPV16|HPV18|HPV33|HPV45|HPV58) - ... + P(HPV16|HPV18|HPV33|HPV45|HPV52|HPV58)
+OTHER_HR: 0.058   # P(HR) - P(HPV16) - P(HPV18) - P(HPV31) - P(HPV33) - P(HPV45) - P(HPV52) - P(HPV58) + P(HPV16|HPV18) + P(HPV16|HPV31) + ... - P(HPV16|HPV18|HPV33) - P(HPV16|HPV18|HPV45) - ... +  P(HPV16|HPV18|HPV33|HPV45) + P(HPV16|HPV18|HPV33|HPV52) + ... - P(HPV16|HPV18|HPV33|HPV45|HPV52) - P(HPV16|HPV18|HPV33|HPV45|HPV58) - ... + P(HPV16|HPV18|HPV33|HPV45|HPV52|HPV58)
 OTHER_LR: 0.460  # P(ALL) = P(LR) + P(HR) - P(LR|HR)  => 0.546 = P(LR) + 0.386 + 0.386*P(LR)
