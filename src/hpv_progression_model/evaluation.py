@@ -205,9 +205,9 @@ class SimulationResults(object):
             discount_rate_yearly (float): The yearly discount rate (default is set by DEFAULT_DISCOUNT_RATE).
 
         """
-        discount_rate_monthly = (1 + discount_rate_yearly) ** (1 / 12)
+        discount_rate_monthly = (1 + discount_rate_yearly) ** (1 / 12) - 1
         for outcome in ObservableOutcome:
-            for t in range(self.baseline.t, self.endline.t + 1):
+            for t in range(self.baseline.t, self.endline.t):
                 self.endline.outcomes[t][outcome] /= (
                     (1 + discount_rate_monthly) ** (t - self.baseline.t)
                 )
