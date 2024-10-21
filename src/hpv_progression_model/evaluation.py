@@ -71,6 +71,7 @@ class DichotomousComparison(object):
         comparator_no_events (int): Number of non-events in the comparator group.
 
     Attributes:
+        absolute_difference (float): The absolute difference between the two groups.
         odds_ratio (float): The odds ratio between the two groups.
         risk_ratio (float): The risk ratio between the intervention and
         comparator groups.
@@ -100,6 +101,11 @@ class DichotomousComparison(object):
         intervention_risk = intervention_events / intervention_sample_size
         comparator_risk = comparator_events / comparator_sample_size
         
+        # absolute difference
+        self.absolute_difference: float = (
+            intervention_events - comparator_events
+        )
+
         # Risk Ratio
         self.risk_ratio: float = (
             intervention_risk / comparator_risk
