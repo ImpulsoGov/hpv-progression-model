@@ -89,7 +89,7 @@ def cohort():
     return Cohort(
         age=15,
         num_individuals=3000,
-        incidences={HPVGenotype.HPV_16: 0.01},
+        incidences_by_age={HPVGenotype.HPV_16: {0: 0.0, 15: 0.01}},
         quadrivalent_coverage=0.75,
         screening_regimen=PAP_SMEAR_3YRS_25_64,
         screening_compliance=0.8,
@@ -101,7 +101,7 @@ def cohort_without_screening():
     return Cohort(
         age=15,
         num_individuals=3000,
-        incidences={HPVGenotype.HPV_16: 0.01},
+        incidences_by_age={HPVGenotype.HPV_16: {0: 0.0, 15: 0.01}},
         quadrivalent_coverage=0.75,
         screening_regimen=NATURAL_HISTORY,
         screening_compliance=0.0,
@@ -113,7 +113,7 @@ def cohort_low_vaccination():
     return Cohort(
         age=15,
         num_individuals=3000,
-        incidences={HPVGenotype.HPV_16: 0.01},
+        incidences_by_age={HPVGenotype.HPV_16: {0: 0.0, 15: 0.01}},
         quadrivalent_coverage=0.05,
         screening_regimen=PAP_SMEAR_3YRS_25_64,
         screening_compliance=0.8,
@@ -310,7 +310,7 @@ class TestIndividual:
         individual.infections.add(infection)
         assert individual.state == state
         individual.see_and_treat_lesions()
-        assert individual.state == HPVInfectionState.HEALTHY
+        assert individual.state == HPVInfectionState.INFECTED
 
 
     @pytest.mark.usefixtures("mock_rng_always_one")
