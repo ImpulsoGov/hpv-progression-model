@@ -43,7 +43,6 @@ from .params import (
     NATURAL_IMMUNITY,
     NON_CERVICAL_CANCER_MORTALITY_RATES,
     QUADRIVALENT_EFFECTIVENESS,
-    SEE_AND_TREAT_EFFECTIVENESS,
     TRANSITION_PROBABILITIES,
     get_life_expectancy,
 )
@@ -310,22 +309,21 @@ class Individual(Longitudinal):
         This method attempts to cure treatable lesions. If the treatment is successful, the HPV infection is cleared. Otherwise, the lesion is
         removed, but the infection remains active.
         """
-        # TODO: check whether this is the most sensible approach. This might
-        # be underestimating the risk of lesion relapse, as it assumes that
-        # treated lesions will, in the worst case, relapse at the same rate
-        # as first-time lesions. Alternatively, we could change the transition
-        # probabilities.
         treatable_states = [HPVInfectionState.CIN2, HPVInfectionState.CIN3]
-        infections_to_remove = set()
         for infection in self.infections:
             if infection.current_state in treatable_states:
-                if SEE_AND_TREAT_EFFECTIVENESS >= RNG.random():
-                    infections_to_remove.add(infection)
-                else:
-                    for infection in self.infections:
-                        # remove lesion, but keep the infection active
-                        infection._current_state = HPVInfectionState.INFECTED
-        self.infections.difference_update(infections_to_remove)
+                # remove lesion, but keep the infection active
+                infection._current_state = HPVInfectionState.INFECTED
+
+                # NOTE: According to Arbyn et al., cited by INCA (2016),
+                # section "Seguimento pós-tratamento de NIC II/III", p. 82
+                # (available from: <https://www.inca.gov.br/publicacoes/livros
+                # /diretrizes-brasileiras-para-o-rastreamento-do-cancer-do-
+                # colo-do-utero>), 8% of the precancerous lesions reappear
+                # in the following two years. This would be difficult to model
+                # without an additional state, so what we do is to assume the
+                # lesion is removed, but the infection remains active and can
+                # progress again to CIN 2 or CIN 3 at the same rate as before.
 
     def update_screening_recommendation(self) -> None:
         """Updates the screening recommendation for the individual.

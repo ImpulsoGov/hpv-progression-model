@@ -10,8 +10,6 @@ Attributes:
     TRANSITION_PROBABILITIES (dict[HPVGenotype, NDArray]): A dictionary mapping HPV genotypes to transition matrices that define the probabilities of progression between various health states in the model.
     QUADRIVALENT_EFFECTIVENESS (dict[HPVGenotype, float]): Effectiveness of the quadrivalent HPV vaccine for specific genotypes (e.g., HPV 16 and HPV
     18).
-    SEE_AND_TREAT_EFFECTIVENESS (float): The effectiveness of the see-and-treat approach in preventing the progression of CIN 2 and CIN 3
-    lesions.
     DEFAULT_DISCOUNT_RATE (float): The default yearly discount rate for the discounting benefits in the future.
     PAP_SMEAR (ScreeningMethod): Sensitivity and specificity values for Pap smear screening.
     PAP_SMEAR_3YRS_25_64 (ScreeningRegimen): A regimen where individuals aged 25-64 undergo Pap smear screenings every three years.
@@ -750,14 +748,6 @@ QUADRIVALENT_EFFECTIVENESS: dict[HPVGenotype, float] = {
     HPVGenotype.HPV_16: 1 - 0.46,
     HPVGenotype.HPV_18: 1 - 0.46,
 }
-
-# Effectiveness of the "See and Treat" approach
-# Source: Arbyn et al., cited by INCA (2016), section "Seguimento
-# pós-tratamento de NIC II/III", p. 82 (available from: 
-# <https://www.inca.gov.br/publicacoes/livros/
-# diretrizes-brasileiras-para-o-rastreamento-do-cancer-do-colo-do-utero>).
-# NOTE: We could not locate the number cited by INCA (2016) in the study mentioned in their references.
-SEE_AND_TREAT_EFFECTIVENESS: float = 0.92
 
 NO_SCREENING = ScreeningMethod(sensitivity={}, specificity=1.0)
 
