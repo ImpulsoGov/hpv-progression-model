@@ -435,7 +435,7 @@ def compare_results(
 
 def evaluate_intervention(
     sample_size: int,
-    incidences: dict[HPVGenotype, float],
+    incidences_by_age_group: dict[HPVGenotype, dict[int, float]],
     base_quadrivalent_coverage: float,
     base_screening_regimen: ScreeningRegimen,
     base_screening_compliance: float,
@@ -458,7 +458,8 @@ def evaluate_intervention(
 
     Args:
         sample_size (int): The number of individuals in the cohort.
-        incidences (dict[HPVGenotype, float]): The incidence rates of HPV genotypes in the cohort.
+        incidences_by_age_group (dict[HPVGenotype, dict[int, float]]): The
+        incidence rates of HPV genotypes in the cohort by age group.
         base_quadrivalent_coverage (float): The quadrivalent vaccine coverage in the base scenario.
         base_screening_regimen (ScreeningRegimen): The screening regimen in the base scenario.
         base_screening_compliance (float): The screening coverage in the base scenario.
@@ -508,7 +509,7 @@ def evaluate_intervention(
     base_cohort = Cohort(
         age=age_first_exposure,
         num_individuals=sample_size,
-        incidences=incidences,
+        incidences_by_age_group=incidences_by_age_group,
         quadrivalent_coverage=base_quadrivalent_coverage,
         screening_regimen=base_screening_regimen,
         screening_compliance=base_screening_compliance,
