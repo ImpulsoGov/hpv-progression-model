@@ -1,19 +1,24 @@
 # HPV Prevalences in the Brazilian Population
 
-# Source: Wendland, E. M., Villa, L. L., Unger, E. R., Domingues, C. M., & Benzaken, A. S. (2020). Prevalence of HPV infection among sexually active adolescents and young adults in Brazil: The POP-Brazil Study. Scientific Reports, 10(1), 1-10. https://doi.org/10.1038/s41598-020-61582-
+# Sources:
+# Wendland, E. M., Villa, L. L., Unger, E. R., Domingues, C. M., & Benzaken, A. S. (2020). Prevalence of HPV infection among sexually active adolescents and young adults in Brazil: The POP-Brazil Study. Scientific Reports, 10(1), 1-10. https://doi.org/10.1038/s41598-020-61582-
 
-# Source: Bruni, L., Diaz, M., Castellsagué, M., Ferrer, E., Bosch, F. X., & De Sanjosé, S. (2010). Cervical Human Papillomavirus Prevalence in 5 Continents: Meta-Analysis of 1 Million Women with Normal Cytological Findings. The Journal of Infectious Diseases, 202(12), 1789-1799. https://doi.org/10.1086/657321
+# Bandeira, I. C., Comerlato, J., Bessel, M., Fernandes, B. V., Mota, G., Villa, L.L., Souza, F. M. A., Pereira, G. F. M., Wendland, E. M. (2024) Comparative evaluation of HPV genotyping: A study on the performance concordance between Anyplex II HPV28 detection and Linear Array genotyping tests in nationwide studies in Brazil. PLoS ONE 19(6): e0305122. https://doi.org/10.1371/journal.pone.0305122
 
-# Data drawn primarily from the POP-Brazil Study, representative of a large convience sample from Brazilian capitals. See: Wendland et al. (2020), "Results" section and Figure 2 (available from: <https://doi.org/10.1038/s41598-020-61582-2>).
+# Data drawn from the POP-Brazil Study, representative of a large convience sample from Brazilian capitals. For genotypes whose prevalences among women were reported in Wendland et al. (2020)'s "Results" section and Figure 2, we directly inputed the available data (HPV types 16, 31, 52 and 58).
 
-# Some of the values are not explicitely given in the paper. We are trying to contact the authors to get the correct values. Meanwhile, we use older data for Latin America and Caribbean from Bruni et al.(2020)'s meta-analyses, Figure 3 (available from: <https://academic.oup.com/view-large/figure/90104059/202-12-1789-fig003.jpeg>) for missing genotypes. 
+# For HPV types 18, 33 and 45, we used the genotype-specific prevalences from a substudy of randomly selected POP-Brasil samples, available from Bandeira et al. (2024), Table 3 (Linear Array method results). Note that, unlike the results from Wendland et al. (2020), results from Bandeira et al. (2024) were not presented separately for men and women. It is not possible to know from the data available in Bandeira et al. (2024) how many men participated in the substudy, but since men were only a 21% minority of the POP-Brasil larger study (see Wendland et al., 2020, "Results" section), we expect the women-specific prevalences not to depart much from what was reported.
 
-HPV_16: 0.089  # Wendland et al. (2020), Brazil
-HPV_18: 0.012  # Bruni et al. (2010), LAC
-HPV_31: 0.048  # Wendland et al. (2020), Brazil
-HPV_33: 0.008  # Bruni et al. (2010), LAC
-HPV_45: 0.007  # Bruni et al. (2010), LAC
-HPV_52: 0.088  # Wendland et al. (2020), Brazil
-HPV_58: 0.001  # Bruni et al. (2010), LAC
-OTHER_HR: 0.028  # Bruni et al. (2010), LAC # HPVs 35 + 39 + 51 + 59 + 66 + 68
-OTHER_LR: 0.016  # Bruni et al. (2010), LAC # HPVs 6 + 11
+# Prevalences for the "other high risk" category were taken from Wendland et al. (2020)'s 38.6% prevalence of high risk genotypes among women. We then discounted the prevalences of genotypes 16, 18, 31, 33, 45, 52 and 58 from this total, assuming the probability of being infected by a genotype is independent of the probabilities of being infected by other genotypes, and using the inclusion-exclusion principle (https://en.wikipedia.org/wiki/Inclusion%E2%80%93exclusion_principle). As the result of this calculation returns a 39,9% prevalence of HR genotypes - close to, but slightly over the 38.6% found in the study, we assume the prevalence of the remaining genotypes HR genotype is 0.0%.
+
+# Prevalences for the "other low risk" category were taken from Wendland et al. (2020)'s 54.6% prevalence of all genotypes among women, discounting for the 38.6% prevalence of high risk genotypes and taking into account the inclusion-exclusion principle.
+
+HPV_16: 0.089  # Wendland et al. (2020)
+HPV_18: 0.089  # Bandeira et al. (2024)
+HPV_31: 0.048  # Wendland et al. (2020)
+HPV_33: 0.040  # Bandeira et al. (2024)
+HPV_45: 0.075  # Bandeira et al. (2024)
+HPV_52: 0.088  # Wendland et al. (2020)
+HPV_58: 0.061  # Wendland et al. (2020)
+OTHER_HR: 0.00   # P(HR) - P(HPV16) - P(HPV18) - P(HPV31) - P(HPV33) - P(HPV45) - P(HPV52) - P(HPV58) + P(HPV16|HPV18) + P(HPV16|HPV31) + ... - P(HPV16|HPV18|HPV33) - P(HPV16|HPV18|HPV45) - ... +  P(HPV16|HPV18|HPV33|HPV45) + P(HPV16|HPV18|HPV33|HPV52) + ... - P(HPV16|HPV18|HPV33|HPV45|HPV52) - P(HPV16|HPV18|HPV33|HPV45|HPV58) - ... + P(HPV16|HPV18|HPV33|HPV45|HPV52|HPV58)
+OTHER_LR: 0.460  # P(ALL) = P(LR) + P(HR) - P(LR|HR)  => 0.546 = P(LR) + 0.386 + 0.386*P(LR)
