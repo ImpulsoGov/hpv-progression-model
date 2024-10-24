@@ -2,19 +2,15 @@
 
 """Evaluation of simulation results for HPV progression.
 
-This module provides classes and methods for evaluating the results of cohort simulations, including 
-comparisons between interventions, calculating risk ratios, odds ratios, and other key metrics related 
-to the effectiveness of screening, vaccination, and treatments. It also supports discounting outcomes 
+This module provides classes and methods for evaluating the results of cohort simulations, including comparisons between interventions, calculating risk 
+ratios, odds ratios, and other key metrics related to the effectiveness of 
+screening, vaccination, and treatments. It also supports discounting outcomes 
 to account for the time value of results.
 
 Key classes include:
     - `DichotomousComparison`: Compares dichotomous outcomes (e.g., events vs. no events) between intervention and comparator groups.
-    - `SimulationResults`: Encapsulates the baseline and endline cohort states after a simulation and allows for discounting of outcomes.
+    - `SimulationResults`: Encapsulates the baseline and endline cohort states after a simulation.
     - `Simulation`: Manages the execution of a cohort simulation over time and calculates resulting outcomes.
-
-Attributes:
-    DEFAULT_DISCOUNT_RATE (float): The default yearly discount rate applied to outcomes.
-    MAX_FOLLOW_UP_DURATION (int): The maximum duration for following up a cohort simulation.
 
 Example:
     Running a simulation and calculating results:
@@ -27,10 +23,6 @@ Example:
     >>> simulation.run()
     >>> results = simulation.results
     ```
-
-Todo:
-    * Implement `DichotomousComparison` metrics such as odds ratio and risk difference.
-    * Implement `summary` methods for concise result reporting.
 """
 
 import sys
@@ -44,7 +36,6 @@ from prettytable import PrettyTable
 
 from .common import (
     HPVGenotype,
-    Immutable,
     ObservableOutcome,
     ScreeningRegimen,
     Snapshot,
@@ -157,9 +148,8 @@ class DichotomousComparison(object):
 class SimulationResults(object):
     """Encapsulates the results of a cohort simulation.
 
-    This class stores the baseline and endline cohort states and provides methods 
-    to discount outcomes over time to account for the time value of events. It also 
-    aggregates events and non-events over the simulation period.
+    This class stores the baseline and endline cohort states and aggregates
+    events and non-events over the simulation period.
 
     Args:
         baseline (Snapshot[Cohort]): The cohort at the start of the simulation.
@@ -168,9 +158,6 @@ class SimulationResults(object):
     Attributes:
         baseline (Snapshot[Cohort]): The cohort at baseline.
         endline (Snapshot[Cohort]): The cohort at the endline.
-        is_discounted (bool): Whether the results have been discounted.
-        discount_rate (float): The yearly discount rate applied to outcomes.
-
     """
 
     def __init__(
@@ -189,30 +176,6 @@ class SimulationResults(object):
         )
         self.baseline: Snapshot[Cohort] = baseline
         self.endline: Snapshot[Cohort] = endline
-        self.is_discounted: bool = False
-        self.discount_rate: float = 0.0
-
-    def discount_outcomes(
-        self,
-        discount_rate_yearly: float = DEFAULT_DISCOUNT_RATE,
-    ) -> None:
-        """Applies a discount rate to the observable outcomes over time.
-
-        This method discounts the outcomes of the simulation to account for the time 
-        value of events. Discounting is done monthly based on the yearly discount rate.
-
-        Args:
-            discount_rate_yearly (float): The yearly discount rate (default is set by DEFAULT_DISCOUNT_RATE).
-
-        """
-        discount_rate_monthly = (1 + discount_rate_yearly) ** (1 / 12) - 1
-        for outcome in ObservableOutcome:
-            for t in range(self.baseline.t, self.endline.t):
-                self.endline.outcomes[t][outcome] /= (
-                    (1 + discount_rate_monthly) ** (t - self.baseline.t)
-                )
-        self.is_discounted = True
-        self.discount_rate = discount_rate_yearly
 
     @property
     def events(self) -> dict[ObservableOutcome, int]:
@@ -258,7 +221,6 @@ class SimulationResults(object):
             ["Age at endline", self.endline.age],
             ["Time at baseline", self.baseline.t],
             ["Time at endline", self.endline.t],
-            ["Discount rate", self.discount_rate],
         ])
 
         print("## Outcomes:", end="\n")
@@ -397,7 +359,7 @@ def apply_treatment(
             setattr(cohort, attr_name, attr_value)
 
 
-def compare_results(
+def compare_dichotomous_outcomes(
     intervention: SimulationResults,
     comparator: SimulationResults,
 ) -> dict[ObservableOutcome, DichotomousComparison]:
@@ -416,8 +378,8 @@ def compare_results(
     
     Example:
         ```py
-        >>> from hpv_progression_model.evaluation import compare_results
-        >>> comparison = compare_results(intervention_results, comparator_results)
+        >>> from hpv_progression_model.evaluation import compare_dichotomous_outcomes
+        >>> comparison = compare_dichotomous_outcomes(intervention_results, comparator_results)
         >>> comparison[ObservableOutcome.CIN2_DETECTIONS].risk_ratio
         0.75
         ```
@@ -432,6 +394,45 @@ def compare_results(
         )
     return comparisons
 
+
+def compare_differences_in_outcomes(
+    intervention: SimulationResults,
+    comparator: SimulationResults,
+    discount_rate_yearly: float = DEFAULT_DISCOUNT_RATE,
+) -> dict[ObservableOutcome, float]:
+    """Calculates the accumulated difference in outcomes, with discounting.
+
+    This function calculates the accumulated difference in outcomes between
+    two simulation results, discounting the outcomes to account for the time
+    value of events.
+
+    Args:
+        intervention (SimulationResults): The simulation results for the intervention group.
+        comparator (SimulationResults): The simulation results for the comparator group.
+        discount_rate_yearly (float): The yearly discount rate applied to the
+        outcomes. Defaults to
+        `hpv_progression_model.params.DEFAULT_DISCOUNT_RATE`.
+    
+    Returns:
+        dict[ObservableOutcome, float]: A dictionary mapping each observable
+        outcome to the accumulated difference in outcomes.
+    """
+
+    discount_rate_monthly = 1 - (1 - discount_rate_yearly) ** (1 / 12)
+    discounted_differences = {}
+    for outcome in ObservableOutcome:
+        t_start = min(intervention.baseline.t, comparator.baseline.t)
+        t_end = max(intervention.endline.t, comparator.endline.t)
+        discounted_differences[outcome] = 0.0
+        for t in range(t_start, t_end):
+            absolute_difference = (
+                intervention.endline.outcomes.get(t, {outcome: 0.0})[outcome]
+                - comparator.endline.outcomes.get(t, {outcome: 0.0})[outcome]
+            )
+            time_passed = (t - t_start)
+            discount = (1 - discount_rate_monthly) ** time_passed
+            discounted_differences[outcome] += absolute_difference * discount
+    return discounted_differences
 
 def evaluate_intervention(
     sample_size: int,
@@ -449,12 +450,12 @@ def evaluate_intervention(
     intervention_followup_duration: int = MAX_FOLLOW_UP_DURATION,
     age_first_exposure: int | float = DEFAULT_AGE_FIRST_EXPOSURE,
     discount_rate: float = DEFAULT_DISCOUNT_RATE,
-) -> SimulationResults | tuple[SimulationResults, SimulationResults]:
+) -> tuple[SimulationResults, SimulationResults]:
     """Evaluates the impact of an intervention compared to a base scenario.
 
-    This function simulates the impact of an intervention compared to a base scenario (comparator). 
-    The intervention can differ from the base scenario in terms of vaccination coverage, screening 
-    regimen, screening coverage, and follow-up loss. It can also apply a discount rate to outcomes.
+    This function simulates the impact of an intervention compared to a base scenario (comparator). The intervention can differ from the base scenario
+    in terms of vaccination coverage, screening regimen, screening coverage,
+    and follow-up loss.
 
     Args:
         sample_size (int): The number of individuals in the cohort.
@@ -477,8 +478,9 @@ def evaluate_intervention(
         `hpv_progression_model.params.DEFAULT_DISCOUNT_RATE`.
 
     Returns:
-        SimulationResults | tuple[SimulationResults, SimulationResults]: The results of the intervention and comparator simulations.
-        If a discount rate is applied, returns both undiscounted and discounted comparisons.
+        tuple[dict[ObservableOutcome, float], dict[ObservableOutcome, DichotomousComparison]]: The absolute differences in the results of the intervention and comparator simulations (time-discounted, if a
+        discount rate > 0.0 is provided), and the effect metrics for each
+        dichotomous outcome.
 
     Example:
         ```py
@@ -492,7 +494,7 @@ def evaluate_intervention(
                 base_screening_compliance=0.8,
                 base_screening_followup_loss=0.05
             )
-        >>> undiscounted, discounted = results
+        >>> differences, effect_metrics = results
         ```
     """
     
@@ -543,19 +545,13 @@ def evaluate_intervention(
     comparator_results = comparator_simulation.results
 
     # Compare results between intervention and comparator
-    undiscounted_comparison = compare_results(
+    differences = compare_differences_in_outcomes(
+        intervention=treatment_results,
+        comparator=comparator_results,
+        discount_rate_yearly=discount_rate,
+    )
+    effect_metrics = compare_dichotomous_outcomes(
         intervention=treatment_results,
         comparator=comparator_results,
     )
-
-    # If discounting is applied, discount outcomes and compare again
-    if discount_rate and discount_rate > 0:
-        treatment_results.discount_outcomes(discount_rate)
-        comparator_results.discount_outcomes(discount_rate)
-        discounted_comparison = compare_results(
-            intervention=treatment_results,
-            comparator=comparator_results,
-        )
-        return undiscounted_comparison, discounted_comparison
-
-    return undiscounted_comparison
+    return differences, effect_metrics
