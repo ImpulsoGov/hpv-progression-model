@@ -235,6 +235,9 @@ class Individual(Longitudinal):
                     infections_to_remove.add(infection)
             self.infections.difference_update(infections_to_remove)
 
+            if self.state == HPVInfectionState.DECEASED:
+                self._cancer_related_death = True
+
             # Apply non-cancer related death probability
             if self.non_cancer_death_probability >= RNG.random():
                 self.state = HPVInfectionState.DECEASED
@@ -365,6 +368,11 @@ class Individual(Longitudinal):
     def age_months(self) -> int:
         """Returns the individual's current age, in months."""
         return self._age_months
+
+    @property 
+    def cancer_related_death(self) -> bool:
+        """Returns whether the individual died due to cancer-related causes."""
+        return getattr(self, "_cancer_related_death", False)
 
     @property
     def current_state(self) -> HPVInfectionState:
@@ -784,6 +792,10 @@ class Cohort(Longitudinal):
             for individual in self.individuals
             if individual.time_since_last_screening == 0
         }
+        cancer_cases = len([
+            i for i in self.individuals
+            if i.state in CANCER_STATES
+        ])
         local_detections = self.transitions[self.t][(
             HPVInfectionState.LOCAL_UNDETECTED,
             HPVInfectionState.LOCAL_DETECTED,
@@ -796,18 +808,31 @@ class Cohort(Longitudinal):
             HPVInfectionState.DISTANT_UNDETECTED,
             HPVInfectionState.DISTANT_DETECTED,
         )]
+        deaths_cancer = len([
+            i for i in self.individuals
+            if i.previous_state in CANCER_STATES
+            and i.cancer_related_death
+        ])
         deaths = sum(
-            self.transitions[self.t][(state, HPVInfectionState.DECEASED)]
-            for state in HPVInfectionState
-            if state != HPVInfectionState.DECEASED
+            self.transitions[self.t][(
+                previous_state,
+                HPVInfectionState.DECEASED
+            )]
+            for previous_state in HPVInfectionState
+            if previous_state != HPVInfectionState.DECEASED
         )
-        years_of_life_lost = deaths * get_life_expectancy(self.age)
+        life_expectancy = get_life_expectancy(self.age)
+        years_of_life_lost_cancer = deaths_cancer * life_expectancy
+        years_of_life_lost = deaths * life_expectancy
         outcomes.update({
             ObservableOutcome.SCREENINGS: len(screened_individuals),
+            ObservableOutcome.CANCER_CASES: cancer_cases,
             ObservableOutcome.LOCAL_DETECTIONS: local_detections,
             ObservableOutcome.REGIONAL_DETECTIONS: regional_detections,
             ObservableOutcome.DISTANT_DETECTIONS: distant_detections,
+            ObservableOutcome.DEATHS_CANCER: deaths_cancer,
             ObservableOutcome.DEATHS: deaths,
+            ObservableOutcome.YLL_CANCER: years_of_life_lost_cancer,
             ObservableOutcome.YLL: years_of_life_lost,
         })
         self._outcomes[self.t] = outcomes
