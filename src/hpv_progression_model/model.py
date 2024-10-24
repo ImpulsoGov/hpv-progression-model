@@ -225,15 +225,15 @@ class Individual(Longitudinal):
 
         # Update the state of the individual
         if self.state != HPVInfectionState.DECEASED:
-            infections_to_keep = set()
+            infections_to_remove = set()
             for infection in self.infections:
                 infection.next()
                 # remove cleared infections and (possibly) add to immune list
-                if infection.state != HPVInfectionState.HEALTHY:
+                if infection.state == HPVInfectionState.HEALTHY:
                     if NATURAL_IMMUNITY >= RNG.random():
                         self.immune_against.add(infection.genotype)
-                    infections_to_keep.add(infection)
-            self.infections = infections_to_keep
+                    infections_to_remove.add(infection)
+            self.infections.difference_update(infections_to_remove)
 
             # Apply non-cancer related death probability
             if self.non_cancer_death_probability >= RNG.random():
@@ -297,6 +297,7 @@ class Individual(Longitudinal):
                     if infection.current_state in UNDETECTED_CANCER_STATES:
                         # transition to "detected" state
                         infection._current_state += 1
+                        infection._time_in_current_state = 0
 
         self._last_screening_age_months = deepcopy(self.age_months)
         self._previous_screening_results.append(screening_result)
@@ -314,6 +315,7 @@ class Individual(Longitudinal):
             if infection.current_state in treatable_states:
                 # remove lesion, but keep the infection active
                 infection._current_state = HPVInfectionState.INFECTED
+                infection._time_in_current_state = 0
 
                 # NOTE: According to Arbyn et al., cited by INCA (2016),
                 # section "Seguimento pós-tratamento de NIC II/III", p. 82
@@ -455,7 +457,7 @@ class Individual(Longitudinal):
         if state == HPVInfectionState.DECEASED:
             self._state = HPVInfectionState.DECEASED
         else:
-            raise AttributeError(
+            raise ValueError(
                 "The only state that can be directly set is ",
                 "`HPVInfectionState.DECEASED`; for all other states, "
                 "use the `.next()` method to update the infection state.",
@@ -586,10 +588,14 @@ class Cohort(Longitudinal):
         This method simulates HPV exposure in the cohort by randomly exposing individuals 
         to new infections based on the incidence rates of different HPV genotypes.
         """
+        individuals_alive = [
+            i for i in self.individuals
+            if i.current_state != HPVInfectionState.DECEASED
+        ]
         for genotype, incidence in self.incidences.items():
             exposed_individuals = RNG.choice(
-                list(self.individuals),
-                size=int(self.num_individuals * incidence),
+                individuals_alive,
+                size=int(self.num_individuals_alive * incidence),
                 replace=False,
             )
             for individual in exposed_individuals:
@@ -858,9 +864,12 @@ class Cohort(Longitudinal):
                 or state == HPVInfectionState.DECEASED
             ):
                 continue
-            prevalences[state] = (
-                self.history[self.t][state] / self.num_individuals_alive
-            )
+            if self.num_individuals_alive == 0:
+                prevalences[state] = 0
+            else:
+                prevalences[state] = (
+                    self.history[self.t][state] / self.num_individuals_alive
+                )
         return prevalences
 
     @property

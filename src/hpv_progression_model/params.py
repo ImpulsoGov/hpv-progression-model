@@ -122,7 +122,7 @@ def _convert_param_dict_to_array(
     ))
     for (state_source, state_destination), params in param_dict.items():
         t = 0
-        value = params[0]
+        value = params[min(params.keys())]
         while t < MAX_FOLLOW_UP_DURATION:
             value = params.get(t, value)
             param_array[
