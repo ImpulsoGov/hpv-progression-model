@@ -205,11 +205,14 @@ class ObservableOutcome(StrEnum):
     EXCISIONS_TYPES_1_2 = "Excisions of types 1-2"
     EXCISIONS_TYPE_3 = "Excisions of type 3"
     BIOPSIES = "Biopsies"
+    CANCER_CASES = "Cervical cancer cases"
     LOCAL_DETECTIONS = "Invasive cancer detections - Local stage"
     REGIONAL_DETECTIONS = "Invasive cancer detections - Regional stage"
     DISTANT_DETECTIONS = "Invasive cancer detections - Distant stage"
-    DEATHS = "deaths"
-    YLL = "Years of Life Lost"
+    DEATHS_CANCER = "Deaths - Cervical cancer"
+    DEATHS = "Deaths -  All causes"
+    YLL_CANCER = "Years of Life Lost - Cervical cancer"
+    YLL = "Years of Life Lost - All causes"
 
 
 @dataclass
