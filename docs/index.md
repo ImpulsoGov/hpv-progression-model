@@ -6,6 +6,10 @@
 
 A semi-markovian microsimulation model of the natural history of Human Papillomavirus (HPV) infection and its outcomes — precancerous cervical lesions and invasive cancers — with support for evaluating vaccination, screening, and treatment interventions. Originally developed for cost-effectiveness analysis (CEA) of cervical cancer prevention programmes in Brazil.
 
+Check the AI-generated video explainer below:
+
+<video src="https://github.com/ImpulsoGov/hpv-progression-model/raw/refs/heads/main/docs/assets/HPV_Progression_Model.mp4" width="320" height="240"  controls></video>
+
 ## Requirements
 
 - Python 3.11+
