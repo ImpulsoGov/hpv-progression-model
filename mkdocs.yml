@@ -4,7 +4,7 @@ site_url: "https://ImpulsoGov.github.io/hpv-progression-model"
 repo_url: "https://github.com/ImpulsoGov/hpv-progression-model"
 repo_name: "ImpulsoGov/hpv-progression-model"
 site_dir: "site"
-watch: [mkdocs.yml, README.md, CHANGELOG.md, src/hpv_progression_model]
+watch: [mkdocs.yml, CHANGELOG.md, src/hpv_progression_model]
 copyright: Copyright &copy; 2024 ImpulsoGov
 edit_uri: edit/main/docs/
 
@@ -19,6 +19,9 @@ nav:
   - Changelog: changelog.md
   - Credits: credits.md
   - License: license.md
+- Documentation:
+  - Model description: model.md
+  - Usage guide: usage.md
 # defer to gen-files + literate-nav
 - API reference:
   - HPV Progression Model: reference.md
@@ -69,6 +72,9 @@ extra_css:
 - css/material.css
 - css/mkdocstrings.css
 
+extra_javascript:
+- https://unpkg.com/mermaid@10/dist/mermaid.min.js
+
 markdown_extensions:
 - attr_list
 - admonition
@@ -81,7 +87,11 @@ markdown_extensions:
 - pymdownx.snippets:
     base_path: [!relative $config_dir]
     check_paths: true
-- pymdownx.superfences
+- pymdownx.superfences:
+    custom_fences:
+    - name: mermaid
+      class: mermaid
+      format: !!python/name:pymdownx.superfences.fence_code_format
 - pymdownx.tabbed:
     alternate_style: true
     slugify: !!python/object/apply:pymdownx.slugs.slugify
