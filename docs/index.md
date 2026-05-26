@@ -8,7 +8,7 @@ A semi-markovian microsimulation model of the natural history of Human Papilloma
 
 Check the AI-generated video explainer below:
 
-<video src="https://github.com/ImpulsoGov/hpv-progression-model/raw/refs/heads/main/docs/assets/HPV_Progression_Model.mp4" width="320" height="240"  controls></video>
+<video src="https://github.com/ImpulsoGov/hpv-progression-model/releases/download/v0.1.0/HPV_Progression_Model.mp4" width="320" height="240" controls></video>
 
 ## Requirements
 
