@@ -115,7 +115,7 @@ Outcomes tracked per time step include cytology exams, lesion and cancer detecti
 
 See [docs/model.md](docs/model.md) for a detailed description of the model logic, transition diagram, and epidemiological parameters. Or check the AI-generated video explainer below:
 
-<video src="https://github.com/ImpulsoGov/hpv-progression-model/releases/download/v0.1.0/HPV_Progression_Model.mp4" width="320" height="240" controls></video>
+<video src="https://github.com/user-attachments/assets/18d3f14c-1fc3-4104-b494-b794cc02a18b" width="320" height="240" controls></video>
 
 ## Documentation
 
